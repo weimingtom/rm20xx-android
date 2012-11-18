@@ -1,0 +1,602 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="AndroidApk">
+      <UniqueIdentifier>{b9393390-507c-41fe-9e6e-ed04edf37143}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CppSource">
+      <UniqueIdentifier>{804341fc-157c-408f-a223-c7e1c6509686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AndroidApk\JavaSource">
+      <UniqueIdentifier>{0d48cda6-3728-416d-a7f0-3c595b915f14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CppSource\core">
+      <UniqueIdentifier>{a20e42c6-2242-45d7-b0a5-bd5a39ec1dd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CppSource\font">
+      <UniqueIdentifier>{5000ed22-923e-4474-bd6d-6d33ddc0b8fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CppSource\raw">
+      <UniqueIdentifier>{b99da687-0aad-42df-8478-0c6b27b75a18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CppSource\rm">
+      <UniqueIdentifier>{18501d97-fb49-4018-817b-83e5d3c3fe1e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AndroidApk\AndroidManifest.xml">
+      <Filter>AndroidApk</Filter>
+    </None>
+    <None Include="AndroidApk\default.properties">
+      <Filter>AndroidApk</Filter>
+    </None>
+    <None Include="AndroidApk\res\layout\main.xml">
+      <Filter>AndroidApk</Filter>
+    </None>
+    <None Include="AndroidApk\res\values\strings.xml">
+      <Filter>AndroidApk</Filter>
+    </None>
+    <None Include="AndroidApk\build.xml">
+      <Filter>AndroidApk</Filter>
+    </None>
+    <None Include="AndroidApk\local.properties">
+      <Filter>AndroidApk</Filter>
+    </None>
+    <None Include="AndroidApk\src\br\gjteam\jni\Main.java">
+      <Filter>AndroidApk\JavaSource</Filter>
+    </None>
+    <None Include="AndroidApk\src\com\nvidia\devtech\NvActivity.java">
+      <Filter>AndroidApk\JavaSource</Filter>
+    </None>
+    <None Include="AndroidApk\src\com\nvidia\devtech\NvGLES2Activity.java">
+      <Filter>AndroidApk\JavaSource</Filter>
+    </None>
+    <None Include="AndroidApk\src\com\nvidia\devtech\NvGLESActivity.java">
+      <Filter>AndroidApk\JavaSource</Filter>
+    </None>
+    <None Include="AndroidApk\src\com\nvidia\devtech\NvUtil.java">
+      <Filter>AndroidApk\JavaSource</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CppSource\app-android.cpp">
+      <Filter>CppSource\core</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\gl2d.cpp">
+      <Filter>CppSource\core</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\Engine.cpp">
+      <Filter>CppSource</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\FontAtlas.cpp">
+      <Filter>CppSource\font</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\FTBitmapChar.cpp">
+      <Filter>CppSource\font</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\FTBitmapFont.cpp">
+      <Filter>CppSource\font</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\GLCallBatcher.cpp">
+      <Filter>CppSource\font</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\PreCompile.cpp">
+      <Filter>CppSource\font</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\RacException.cpp">
+      <Filter>CppSource\font</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\TreeNode.cpp">
+      <Filter>CppSource\font</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\Util.cpp">
+      <Filter>CppSource\font</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\ResManager.cpp">
+      <Filter>CppSource\font</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\GLES11SpriteBatch.cpp">
+      <Filter>CppSource\core</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\SpriteBatch.cpp">
+      <Filter>CppSource\core</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcanimation.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcarray.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcattribute.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcbattle.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcbattleatb.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcbattlecommand.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcbattleset.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wccommand.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wccommon.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcdatabase.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcdialog.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcdraw.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcevent.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcfx.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcgearplate.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcgroup.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcguibuild.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcguiname.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wchero.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcheroplate.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcimage.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcini.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcinput.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcinvoke.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcitem.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcitemmenu.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wclevel.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wclog.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcmanage.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcmap.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcmaptree.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcmaterial.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcmem.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcmenu.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcmessage.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcmetric.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcmisc.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcmonster.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcmove.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcnucleus.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcpage.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcparty.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcperform.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcpicture.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcplayer.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcpopnum.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcquitmenu.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcres.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcrpg.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcrun.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcsave.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcsaveio.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcsavemenu.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcscreenshot.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcskill.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcskillmenu.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcsort.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcsound.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcstatusmenu.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcsystem.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wctable.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcterrain.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wctext.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wctileset.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wctimer.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wctrans.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wctype.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcvocab.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcwindow.cpp">
+      <Filter>CppSource\rm</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CppSource\app.h">
+      <Filter>CppSource\core</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\gmUtil.h">
+      <Filter>CppSource\core</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\jniUtil.h">
+      <Filter>CppSource\core</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\gl2d.h">
+      <Filter>CppSource\core</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\Vector2D.h">
+      <Filter>CppSource\core</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\Engine.h">
+      <Filter>CppSource</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\Allocator.h">
+      <Filter>CppSource\font</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\EAGLView.h">
+      <Filter>CppSource\font</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\FontAtlas.h">
+      <Filter>CppSource\font</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\FTBitmapChar.h">
+      <Filter>CppSource\font</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\FTBitmapFont.h">
+      <Filter>CppSource\font</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\GLCallBatcher.h">
+      <Filter>CppSource\font</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\OpenGLFontAppDelegate.h">
+      <Filter>CppSource\font</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\precompile.h">
+      <Filter>CppSource\font</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\RacException.h">
+      <Filter>CppSource\font</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\TreeNode.h">
+      <Filter>CppSource\font</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\Util.h">
+      <Filter>CppSource\font</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\ResManager.h">
+      <Filter>CppSource\font</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\GLES11SpriteBatch.h">
+      <Filter>CppSource\core</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\SpriteBatch.h">
+      <Filter>CppSource\core</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcanimation.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcarray.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcattribute.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcbattle.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcbattleatb.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcbattlecommand.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcbattleset.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wccommand.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wccommandname.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wccommandneo.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wccommandrun.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wccommon.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcdatabase.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcdialog.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcdraw.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcevent.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcfx.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcgearplate.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcgroup.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcguibuild.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcguiname.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wchero.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcheroplate.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcimage.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcini.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcinput.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcinvoke.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcitem.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcitemmenu.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wclevel.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wclog.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcmanage.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcmap.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcmapdraw.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcmaptree.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcmaterial.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcmem.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcmenu.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcmessage.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcmetric.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcmisc.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcmonster.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcmove.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcnucleus.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcpage.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcparty.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcperform.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcpicture.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcplayer.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcpopnum.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcquitmenu.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcres.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcrpg.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcrun.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcsave.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcsaveio.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcsavemenu.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcscreenshot.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcskill.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcskillmenu.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcsort.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcsound.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcstatusmenu.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcsystem.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcsystemmusic.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcsystemsound.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wctable.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcterrain.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wctext.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wctileset.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wctimer.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wctrans.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wctype.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcvocab.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcwindow.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+    <ClInclude Include="CppSource\rm_src\wcwindowtext.h">
+      <Filter>CppSource\rm</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

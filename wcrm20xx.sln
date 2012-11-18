@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "san-angeles", "san-angeles.vcxproj", "{F3F25B49-2C6B-4FF0-98FB-47695DF70B8A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Android = Debug|Android
+		Release|Android = Release|Android
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F3F25B49-2C6B-4FF0-98FB-47695DF70B8A}.Debug|Android.ActiveCfg = Debug|Android
+		{F3F25B49-2C6B-4FF0-98FB-47695DF70B8A}.Debug|Android.Build.0 = Debug|Android
+		{F3F25B49-2C6B-4FF0-98FB-47695DF70B8A}.Release|Android.ActiveCfg = Release|Android
+		{F3F25B49-2C6B-4FF0-98FB-47695DF70B8A}.Release|Android.Build.0 = Release|Android
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
