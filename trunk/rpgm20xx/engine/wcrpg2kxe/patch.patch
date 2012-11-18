@@ -1,0 +1,6652 @@
+Index: wcarray.cpp
+===================================================================
+--- wcarray.cpp	(revision 274)
++++ wcarray.cpp	(working copy)
+@@ -6,6 +6,7 @@
+ #include <malloc.h>
+ #include <memory.h>
+ #include <string.h>
++#include <stdio.h>
+ #include "wcarray.h"
+ #include "wcrpg.h"
+ 
+@@ -55,7 +56,8 @@
+ 		nlen = olen*2;
+ 		/* Copy to new */
+ 		nlist = (void**)malloc(nlen);
+-		memcpy_s(nlist,olen,a->list,olen);
++		memcpy(nlist,a->list,olen);
++		//memcpy_s(nlist,olen,a->list,olen);
+ 		/* Switch */
+ 		free(a->list);
+ 		a->list = nlist;
+Index: wcbattleset.cpp
+===================================================================
+--- wcbattleset.cpp	(revision 274)
++++ wcbattleset.cpp	(working copy)
+@@ -8,6 +8,8 @@
+ #include "wcbattleset.h"
+ #include "wctype.h"
+ 
++#include <stdlib.h>
++
+ /* Globals */
+ table *battleset_table;
+ arraylist battlechar_pool = 0;
+Index: wcdatabase.cpp
+===================================================================
+--- wcdatabase.cpp	(revision 274)
++++ wcdatabase.cpp	(working copy)
+@@ -3,7 +3,9 @@
+ */
+ 
+ /* Includes */
+-#include <windows.h>
++////#include <windows.h>
++#include <string.h>
++
+ #include <malloc.h>
+ #include <stdio.h>
+ #include "wcrpg.h"
+@@ -26,9 +28,11 @@
+ #include "wcterrain.h"
+ #include "wcbattlecommand.h"
+ 
++#include "../jniUtil.h"
++
+ /* Globals */
+ arraylist tilesets;
+-char wcdatabase_unknown_section_buffer[MAX_PATH];
++char wcdatabase_unknown_section_buffer[260];
+ 
+ /* Returns */
+ int wcdatabase_is_junk(int code)
+@@ -89,19 +93,19 @@
+ 	}
+ 	/* Code is unknown */
+ 	memset(wcdatabase_unknown_section_buffer,0,sizeof(wcdatabase_unknown_section_buffer));
+-	sprintf_s(wcdatabase_unknown_section_buffer,"Unknown %X",code);
++	sprintf(wcdatabase_unknown_section_buffer,"Unknown %X",code);
+ 	return wcdatabase_unknown_section_buffer;
+ }
+ 
+ /* Dump section */
+ void wcdatabase_dump_section(unsigned char *data,int len,char *name)
+ {
+-	char buffer[MAX_PATH];
++	char buffer[260];
+ 	FILE *f;
+-	sprintf_s(buffer,sizeof(buffer),"%s.dat",name);
+-	fopen_s(&f,buffer,"wb");
+-	fwrite(data,1,len,f);
+-	fclose(f);
++	sprintf(buffer,"%s.dat",name);
++	//fopen(buffer,"wb");
++	//fwrite(data,1,len,f);
++	//fclose(f);
+ }
+ 
+ /* Parse section if supported */
+@@ -117,96 +121,112 @@
+ 	/* Load heroes */
+ 	if(code == DATA_HEROES)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [0]");
+ 		wchero_load_all(f,len);
+ 		return 1;
+ 	}
+ 	/* Load skills */
+ 	if(code == DATA_SKILLS)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [1]");
+ 		wcskill_load_all(f,len);
+ 		return 1;
+ 	}
+ 	/* Load items */
+ 	if(code == DATA_ITEMS)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [2]");
+ 		wcitem_load_all(f,len);
+ 		return 1;
+ 	}
+ 	/* Load monsters */
+ 	if(code == DATA_MONSTER)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [3]");
+ 		wcmonster_load_all(f,len);
+ 		return 1;
+ 	}
+ 	/* Load battle commands */
+ 	if(code == DATA_COMMANDS)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [4]");
+ 		wcbattlecommand_load_all(f,len);
+ 		return 1;
+ 	}
+ 	/* Load groups */
+ 	if(code == DATA_GROUP)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [5]");
+ 		wcgroup_load_all(f,len);
+ 		return 1;
+ 	}
+ 	/* Load terrains */
+ 	if(code == DATA_TERRAIN)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [6]");
+ 		wcterrain_load_all(f,len);
+ 		return 1;
+ 	}
+ 	/* Load attributes */
+ 	if(code == DATA_ATTRIBUTE)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [7]");
+ 		wcattribute_load_all(f,len);
+ 		return 1;
+ 	}
+ 	/* Load tilesets */
+ 	if(code == DATA_TILESETS)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [8]");
+ 		tilesets = wctileset_load_all(f,len);
+ 		return 1;
+ 	}
+ 	/* Load system */
+ 	if(code == DATA_SETTINGS)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [9]");
+ 		wcsystem_load_all(f,len);
+ 		return 1;
+ 	}
+ 	/* Load vocab */
+ 	if(code == DATA_VOCAB)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [10]");
+ 		wcvocab_load_all(f,len);
+ 		return 1;
+ 	}
+ 	/* Load switches */
+ 	if(code == DATA_SWITCHES)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [11]");
+ 		wcmem_load_all_switches(f,len);
+ 		return 1;
+ 	}
+ 	/* Load variables */
+ 	if(code == DATA_VARIABLES)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [12]");
+ 		wcmem_load_all_variables(f,len);
+ 		return 1;
+ 	}
+ 	/* Load common */
+ 	if(code == DATA_COMMON_EVENTS)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [13]");
+ 		wccommon_load_all(f,len);
+ 		return 1;
+ 	}
+ 	/* Load animations */
+ 	if(code == DATA_ANIMATION)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [14]");
+ 		wcanimation_load_all(f,len);
+ 		return 1;
+ 	}
+ 	/* Load battlesets */
+ 	if(code == DATA_BATTLESETS)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_process_section [15]");
+ 		wcbattleset_load_all(f,len);
+ 		return 1;
+ 	}
+@@ -274,17 +294,23 @@
+ 		code = wcint_read_file(f,&rlen);
+ 		len = wcint_read_file(f,&rlen);
+ 		/* Process */
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_load_sections [0]");
+ 		if(!wcdatabase_process_section(code,f,len))
+ 		{
++			__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_load_sections [1]");
+ 			/* Skipping */
+ 			wclog_write(wcrpg_get_log(),"Skipping ");
+ 			wclog_write(wcrpg_get_log(),wcdatabase_identify_section(code));
+ 			wclog_enter(wcrpg_get_log());
+ 			/* Read it in */
++			__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_load_sections [2]");
+ 			data = (unsigned char*)malloc(len);
++			__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_load_sections [3]");
+ 			fread(data,1,len,f);
++			__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_load_sections [4]");
+ 			/* Discard if not using */
+ 			free(data);
++			__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_load_sections [5]");
+ 		}
+ 		/* Was that the end? */
+ 		if(code == DATA_BATTLESETS && !wcrpg_old_mode())
+@@ -292,47 +318,60 @@
+ 		if(code == DATA_COMMON_EVENTS && wcrpg_old_mode())
+ 			break;
+ 		/* Unexpected end of file */
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_load_sections [6]");
+ 		if(feof(f))
+ 		{
++			__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_load_sections [7]");
+ 			wcrpg_set_old_mode();
+ 			break;
+ 		}
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase_load_sections [8]");
+ 	}
+ }
+ 
+ /* Read database */
+ void wcdatabase_load()
+ {
+-	char buffer[MAX_PATH];
++	char buffer[260];
+ 	FILE *f;
+ 	char *filetype;
+ 	int rlen;
+ 	/* Open channel to file */
+-	sprintf_s(buffer,sizeof(buffer),"%sRPG_RT.ldb",wcrpg_get_root());
+-	fopen_s(&f,buffer,"rb");
++	sprintf(buffer,"%sRPG_RT.ldb","/sdcard/wcr2kxx/assets/");
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase %s",buffer);
++	f=fopen(buffer,"rb");
+ 	if(!f)
+ 	{
+ 		wcrpg_error("No such game found in %s",wcrpg_get_root());
+ 		return;
+ 	}
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase [1]");
+ 	filetype = wcstr_read_file(f,&rlen);
+-	wcdatabase_dump_sections(f);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase [2]");
++	//wcdatabase_dump_sections(f);
+ 	fclose(f);
+-	fopen_s(&f,buffer,"rb");
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase [3]");
++	f=fopen(buffer,"rb");
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase [4]");
+ 	/* Read type */
+ 	filetype = wcstr_read_file(f,&rlen);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase [5]");
+ 	wclog_write(wcrpg_get_log(),"Loading database... (");
+ 	wclog_write(wcrpg_get_log(),filetype);
+ 	wclog_write(wcrpg_get_log(),")");
+ 	wclog_enter(wcrpg_get_log());
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase [6]");
+ 	/* Go */
+ 	wcdatabase_load_sections(f);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase [1]");
+ 	/* End */
+ 	wclog_write(wcrpg_get_log(),"Finished reading database.");
+ 	wclog_enter(wcrpg_get_log());
+ 	/* Finish */
+ 	free(filetype);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase [1]");
+ 	fclose(f);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcdatabase [1]");
+ }
+ 
+ /* Free database */
+Index: wcdialog.cpp
+===================================================================
+--- wcdialog.cpp	(revision 274)
++++ wcdialog.cpp	(working copy)
+@@ -6,6 +6,7 @@
+ /* Includes */
+ #include <malloc.h>
+ #include <memory.h>
++#include <string>
+ #include "wcrpg.h"
+ #include "wcdialog.h"
+ #include "wcwindow.h"
+@@ -64,28 +65,28 @@
+ 	cur = 0;
+ 	if(a)
+ 	{
+-		memcpy_s(cs,strlen(a),a,strlen(a));
++		memcpy(cs,a,strlen(a));
+ 		cur += (int)strlen(a);
+ 	}
+ 	if(b)
+ 	{
+ 		cs[cur] = '\n';
+ 		cur++;
+-		memcpy_s(&cs[cur],strlen(b),b,strlen(b));
++		memcpy(&cs[cur],b,strlen(b));
+ 		cur += (int)strlen(b);
+ 	}
+ 	if(c)
+ 	{
+ 		cs[cur] = '\n';
+ 		cur++;
+-		memcpy_s(&cs[cur],strlen(c),c,strlen(c));
++		memcpy(&cs[cur],c,strlen(c));
+ 		cur += (int)strlen(c);
+ 	}
+ 	if(d)
+ 	{
+ 		cs[cur] = '\n';
+ 		cur++;
+-		memcpy_s(&cs[cur],strlen(d),d,strlen(d));
++		memcpy(&cs[cur],d,strlen(d));
+ 		cur += (int)strlen(d);
+ 	}
+ 	/* Complete */
+Index: wcdraw.cpp
+===================================================================
+--- wcdraw.cpp	(revision 274)
++++ wcdraw.cpp	(working copy)
+@@ -3,920 +3,366 @@
+ */
+ 
+ /* Includes */
+-#include <windows.h>
++//#include <windows.h>
+ #include <memory.h>
+-#include <SDL.h>
+-#include <SDL_syswm.h>
++//#include <SDL.h>
++//#include <SDL_syswm.h>
+ #include <math.h>
+-#include "resource.h"
++//#include "resource.h"
+ #include "wcrpg.h"
+ #include "wcdraw.h"
+ #include "wcnucleus.h"
+ #include "wcarray.h"
+ #include "wcmaterial.h"
+ 
++#include "../jniUtil.h"
++
++#include "../gl2d.h"
++
++#include <android\log.h>
++
+ /* Globals */
+-LPDIRECT3D9 d3d; /* Pointer to direct 3d interface */
+-LPDIRECT3DDEVICE9 d3ddev; /* Direct 3D device */
+-HWND hwnd; /* Pointer to main window */
+-SDL_SysWMinfo wmi; /* Window info */
+-D3DPRESENT_PARAMETERS d3dpp; /* Settings for the device */
+-DWORD wcrpgvf = D3DFVF_XYZRHW|D3DFVF_DIFFUSE|D3DFVF_TEX1; /* Custom vertex format */
+-LPDIRECT3DVERTEXBUFFER9 d3dvb; /* Vertex buffer */
+-LPDIRECT3DSURFACE9 d3ds; /* Surface */
+-int wcdraw_tri_count = 0; /* Triangle counter */
+-float wcdraw_local_mag = 1; /* Local magnification settings */
+-unsigned char wcdraw_channel_add[256][256];
+-unsigned char wcdraw_channel_sub[256][256];
+-int wcdraw_reset_mode = 0; /* Do we have to go through the process of resetting? */
+-int wcdraw_reset_count = 0; /* Times video device has been reset */
+-int render_width = 512;
+-int render_height = 512;
+-LPDIRECT3DTEXTURE9 render_texture; /* The screen render texture */
+-image *render_image; /* The screen render image object */
+-int wcdraw_total_vram = 0; /* Total VRAM usage (may not all be hardware VRAM) */
+-int wcdraw_peak_vram = 0; /* Maximum VRAM usage ever */
+-shader *wcdraw_tint_shader = 0; /* Tint screen shader */
+-shader *wcdraw_current_shader = 0; /* Current shader effect */
+-int wcdraw_enable_shader = 1; /* Enable shaders */
+-float wcdraw_fx_tint_color[4] = {1.0f,1.0f,1.0f,1.0f}; /* Local copy of shader param */
+-D3DCAPS9 wcdraw_caps; /* Capabillity */
+-arraylist wcdraw_shader_list; /* All shaders */
+-int wcdraw_current_screen_shader = 0; /* Current screen effect */
+-int wcdraw_blossom_shader = 0; /* Blossom shader */
++//LPDIRECT3D9 d3d; /* Pointer to direct 3d interface */
++//LPDIRECT3DDEVICE9 d3ddev; /* Direct 3D device */
++//HWND hwnd; /* Pointer to main window */
++//SDL_SysWMinfo wmi; /* Window info */
++//D3DPRESENT_PARAMETERS d3dpp; /* Settings for the device */
++//DWORD wcrpgvf = D3DFVF_XYZRHW|D3DFVF_DIFFUSE|D3DFVF_TEX1; /* Custom vertex format */
++//LPDIRECT3DVERTEXBUFFER9 d3dvb; /* Vertex buffer */
++//LPDIRECT3DSURFACE9 d3ds; /* Surface */
++//int wcdraw_tri_count = 0; /* Triangle counter */
++//float wcdraw_local_mag = 1; /* Local magnification settings */
++//unsigned char wcdraw_channel_add[256][256];
++//unsigned char wcdraw_channel_sub[256][256];
++//int wcdraw_reset_mode = 0; /* Do we have to go through the process of resetting? */
++//int wcdraw_reset_count = 0; /* Times video device has been reset */
++//int render_width = 512;
++//int render_height = 512;
++//LPDIRECT3DTEXTURE9 render_texture; /* The screen render texture */
++//image *render_image; /* The screen render image object */
++//int wcdraw_total_vram = 0; /* Total VRAM usage (may not all be hardware VRAM) */
++//int wcdraw_peak_vram = 0; /* Maximum VRAM usage ever */
++//shader *wcdraw_tint_shader = 0; /* Tint screen shader */
++//shader *wcdraw_current_shader = 0; /* Current shader effect */
++//int wcdraw_enable_shader = 1; /* Enable shaders */
++//float wcdraw_fx_tint_color[4] = {1.0f,1.0f,1.0f,1.0f}; /* Local copy of shader param */
++//D3DCAPS9 wcdraw_caps; /* Capabillity */
++//arraylist wcdraw_shader_list; /* All shaders */
++//int wcdraw_current_screen_shader = 0; /* Current screen effect */
++//int wcdraw_blossom_shader = 0; /* Blossom shader */
+ 
+ /* Loads in a shader using resource index */
+-void wcdraw_load_shader(int resid)
+-{
+-	int i,s;
+-	shader *sh;
+-	/* See if there is one */
+-	for(i = 0;i < wcarray_size(wcdraw_shader_list);i++)
+-	{
+-		sh = (shader*)wcarray_get(wcdraw_shader_list,i);
+-		if(sh->get_resource_id() == resid)
+-		{
+-			wclog_write(wcrpg_get_log(),"Already loaded shader #");
+-			wclog_write(wcrpg_get_log(),resid);
+-			wclog_enter(wcrpg_get_log());
+-			return;
+-		}
+-	}
+-	/* Load id */
+-	s = wcdraw_add_shader((wcmaterial_request_filename_index(MATERIAL_EFFECT,resid)));
+-	sh = (shader*)wcarray_get(wcdraw_shader_list,s-1);
+-	sh->set_resource_id(resid);
+-	wclog_write(wcrpg_get_log(),"Loaded shader #");
+-	wclog_write(wcrpg_get_log(),resid);
+-	wclog_enter(wcrpg_get_log());
+-}
++void wcdraw_load_shader(int resid){}
+ 
+ /* Get shader using resource index */
+-int wcdraw_get_shader(int resid)
+-{
+-	int i;
+-	shader *sh;
+-	/* Get resource */
+-	for(i = 0;i < wcarray_size(wcdraw_shader_list);i++)
+-	{
+-		sh = (shader*)wcarray_get(wcdraw_shader_list,i);
+-		if(sh->get_resource_id() == resid)
+-			return i+1;
+-	}
+-	/* Error */
+-	wcrpg_error("Shader #%d was not loaded yet or does not exist",resid);
+-	return -1;
+-}
++int wcdraw_get_shader(int resid){return -1;}
+ 
+ /* Add file shader */
+-int wcdraw_add_shader(char *file)
+-{
+-	shader *sh;
+-	sh = new shader(file);
+-	wcarray_add(wcdraw_shader_list,sh);
+-	return wcarray_size(wcdraw_shader_list);
+-}
++int wcdraw_add_shader(char *file){}
+ 
+ /* Add intern shader */
+-int wcdraw_add_shader(int intres,char *name)
+-{
+-	shader *sh;
+-	sh = new shader(intres,name);
+-	wcarray_add(wcdraw_shader_list,sh);
+-	return wcarray_size(wcdraw_shader_list);
+-}
++int wcdraw_add_shader(int intres,char *name){}
+ 
+ /* Set index shader */
+-void wcdraw_set_shader(int ix)
+-{
+-	if(!ix)
+-		wcdraw_current_shader = 0;
+-	else
+-		wcdraw_current_shader = (shader*)wcarray_get(wcdraw_shader_list,ix-1);
+-}
++void wcdraw_set_shader(int ix){}
+ 
+ /* Lose all shaders */
+-void wcdraw_lose_all_shaders()
+-{
+-	int i;
+-	for(i = 0;i < wcarray_size(wcdraw_shader_list);i++)
+-		((shader*)wcarray_get(wcdraw_shader_list,i))->lose();
+-}
++void wcdraw_lose_all_shaders(){}
+ 
+ /* Reset all shaders */
+-void wcdraw_reset_all_shaders()
+-{
+-	int i;
+-	for(i = 0;i < wcarray_size(wcdraw_shader_list);i++)
+-		((shader*)wcarray_get(wcdraw_shader_list,i))->reset();
+-}
++void wcdraw_reset_all_shaders(){}
+ 
+ /* Set shader */
+-void wcdraw_set_shader(shader *shr)
+-{
+-	wcdraw_current_shader = shr;
+-}
++void wcdraw_set_shader(shader *shr){}
+ 
+ /* Get handles */
+-void shader :: get_handles()
+-{
+-	/* Get handles */
+-	handle_texture = eff->GetParameterByName(0,"wcdraw_fx_texture");
+-	handle_tint = eff->GetParameterByName(0,"wcdraw_fx_tint_color");
+-	handle_size = eff->GetParameterByName(0,"wcdraw_fx_pixel_size");
+-}
++void shader :: get_handles(){}
+ 
+ /* Create shader */
+-shader :: shader(char *file)
+-{
+-	HRESULT hresult;
+-	/* Blank out */
+-	eff = 0;
+-	msg = 0;
+-	resource_index = -1;
+-	/* Remember file */
+-	fname = wcrpg_string_clone(file);
+-	/* Create from file */
+-	hresult = D3DXCreateEffectFromFileA(d3ddev,file,0,0,D3DXSHADER_OPTIMIZATION_LEVEL3,0,&eff,&msg);
+-	if(D3D_OK != hresult)
+-	{
+-		/* Decode error */
+-		if(hresult == D3DERR_INVALIDCALL)
+-			wcrpg_error("Could not compile shader (%s) D3DERR_INVALIDCALL",file);
+-		if(hresult == D3DXERR_INVALIDDATA)
+-			wcrpg_error("Could not compile shader (%s) D3DXERR_INVALIDDATA",file);
+-		if(hresult == E_OUTOFMEMORY)
+-			wcrpg_error("There's no more room for shaders (%s)",file);
+-		/* Display error buffer if any */
+-		if(msg->GetBufferPointer())
+-			wcrpg_error("Details:\n%s",(char*)msg->GetBufferPointer());
+-		else
+-			wcdraw_enable_shader = 0;
+-		return;
+-	}
+-	/* Get value handles */
+-	get_handles();
+-}
++shader :: shader(char *file){}
+ 
+ /* Create shader from resource */
+-shader :: shader(int resint,char *name)
+-{
+-	HRESULT hresult;
+-	/* Blank out */
+-	eff = 0;
+-	msg = 0;
+-	resource_index = -1;
+-	/* Remember file */
+-	fname = wcrpg_string_clone(name);
+-	/* Create from resource */
+-	hresult = D3DXCreateEffectFromResource(d3ddev,0,MAKEINTRESOURCE(resint),0,0,D3DXSHADER_OPTIMIZATION_LEVEL3,0,&eff,&msg);
+-	if(D3D_OK != hresult)
+-	{
+-		/* Decode error */
+-		if(hresult == D3DERR_INVALIDCALL)
+-			wcrpg_error("Could not compile shader (%s) D3DERR_INVALIDCALL",name);
+-		if(hresult == D3DXERR_INVALIDDATA)
+-			wcrpg_error("Could not compile shader (%s) D3DXERR_INVALIDDATA",name);
+-		if(hresult == E_OUTOFMEMORY)
+-			wcrpg_error("There's no more room for shaders (%s)",name);
+-		/* Display error buffer if any */
+-		if(msg->GetBufferPointer())
+-			wcrpg_error("Details:\n%s",(char*)msg->GetBufferPointer());
+-		else
+-			wcdraw_enable_shader = 0;
+-		return;
+-	}
+-	/* Get handles */
+-	get_handles();
+-}
++shader :: shader(int resint,char *name){}
+ 
+ /* Delete shader */
+-shader :: ~shader()
+-{
+-	free(fname);
+-	if(eff)
+-		eff->Release();
+-	if(msg)
+-		msg->Release();
+-}
++shader :: ~shader(){}
+ 
+ /* Lose */
+-void shader :: lose()
+-{
+-	eff->OnLostDevice();
+-}
++void shader :: lose(){}
+ 
+ /* Reset */
+-void shader :: reset()
+-{
+-	eff->OnResetDevice();
+-}
++void shader :: reset(){}
+ 
+ /* Update constants */
+-void shader :: update(LPDIRECT3DTEXTURE9 tex,int w,int h)
+-{
+-	D3DXVECTOR4 tvec,svec;
+-	/* Set vector for tint color */
+-	tvec.x = wcdraw_fx_tint_color[0];
+-	tvec.y = wcdraw_fx_tint_color[1];
+-	tvec.z = wcdraw_fx_tint_color[2];
+-	tvec.w = wcdraw_fx_tint_color[3];
+-	/* Set vector for size */
+-	svec.x = 1.0f/((float)w);
+-	svec.y = 1.0f/((float)h);
+-	svec.z = 0.0f;
+-	svec.w = 0.0f;
+-	/* Update texture */
+-	eff->SetTexture(handle_texture,tex);
+-	eff->SetVector(handle_tint,&tvec);
+-	eff->SetVector(handle_size,&svec);
+-}
++//void shader :: update(LPDIRECT3DTEXTURE9 tex,int w,int h)
++void shader :: update(int tex,int w,int h){}
+ 
+ /* Start shader */
+-void shader :: start()
+-{
+-	UINT npass;
+-	if(D3D_OK != eff->Begin(&npass,0))
+-	{
+-		wcrpg_error("Could not begin shader (%s)",fname);
+-		return;
+-	}
+-	if(D3D_OK != eff->BeginPass(0))
+-	{
+-		wcrpg_error("Could not begin pass in shader (%s)",fname);
+-		return;
+-	}
+-}
++void shader :: start(){}
+ 
+ /* End shader */
+-void shader :: end()
+-{
+-	/* End the shader */
+-	eff->EndPass();
+-	eff->End();
+-}
++void shader :: end(){}
+ 
+ /* Set id */
+-void shader :: set_resource_id(int id)
+-{
+-	resource_index = id;
+-}
++void shader :: set_resource_id(int id){}
+ 
+ /* Get id */
+-int shader :: get_resource_id()
+-{
+-	return resource_index;
+-}
++int shader :: get_resource_id(){}
+ 
+ /* Grabs the screen into an image */
+-image *wcdraw_image_screen()
+-{
+-	D3DLOCKED_RECT d3drs;
+-	LPDIRECT3DSURFACE9 rtarg;
+-	pixel32 *sptr;
+-	color imgcol;
+-	int srank,y,x,index;
+-	image *img;
+-	/* Get current picture in */
+-	d3ddev->Present(NULL,NULL,NULL,NULL);
+-	/* Copy the picture */
+-	if(d3ddev->GetRenderTarget(0,&rtarg) != D3D_OK)
+-	{
+-		wcrpg_error("Could not get render target");
+-		return 0;
+-	}
+-	if(d3ddev->GetRenderTargetData(rtarg,d3ds) != D3D_OK)
+-	{
+-		wcrpg_error("Could not get render target data");
+-		return 0;
+-	}
+-	/* Lock the surfaces */
+-	if(d3ds->LockRect(&d3drs,0,0) != D3D_OK)
+-	{
+-		wcrpg_error("Could not lock render source");
+-		return 0;
+-	}
+-	/* Get metrics */
+-	sptr = (pixel32*)d3drs.pBits;
+-	srank = d3drs.Pitch/sizeof(pixel32);
+-	/* Do the transfer */
+-	img = new image(WCRPG_WIDTH*wcrpg_get_mag(),WCRPG_HEIGHT*wcrpg_get_mag());
+-	for(y = 0;y < WCRPG_HEIGHT*wcrpg_get_mag();y++)
+-	{
+-		index = y*srank;
+-		for(x = 0;x < WCRPG_WIDTH*wcrpg_get_mag();x++)
+-		{
+-			/* Copy pixel with full alpha */
+-			imgcol.r = sptr[index].b;
+-			imgcol.g = sptr[index].g;
+-			imgcol.b = sptr[index].r;
+-			imgcol.a = 0xFF;
+-			/* Set pixel */
+-			img->set(x,y,imgcol);
+-			index++;
+-		}
+-	}
+-	/* Unlock the surfaces */
+-	if(d3ds->UnlockRect() != D3D_OK)
+-	{
+-		wcrpg_error("Could not unlock render source");
+-		return 0;
+-	}
+-	/* Finish */
+-	rtarg->Release();
+-	return img;
+-}
++image *wcdraw_image_screen(){}
+ 
+ /* Draws the current screen shader if any */
+-void wcdraw_screen_shader()
+-{
+-	D3DLOCKED_RECT d3drs,d3drd;
+-	LPDIRECT3DSURFACE9 rtarg;
+-	pixel32 *sptr,*dptr,*source,*dest;
+-	int srank,drank,y;
+-	/* Must have both screen and shaders enabled */
+-	if(!wcdraw_current_screen_shader)
+-		return;
+-	if(!wcdraw_enable_shader)
+-		return;
+-	/* Get current picture in */
+-	d3ddev->Present(NULL,NULL,NULL,NULL);
+-	/* Copy the picture */
+-	if(d3ddev->GetRenderTarget(0,&rtarg) != D3D_OK)
+-	{
+-		wcrpg_error("Could not get render target");
+-		return;
+-	}
+-	if(d3ddev->GetRenderTargetData(rtarg,d3ds) != D3D_OK)
+-	{
+-		wcrpg_error("Could not get render target data");
+-		return;
+-	}
+-	/* Lock the surfaces */
+-	if(render_texture->LockRect(0,&d3drd,0,0) != D3D_OK)
+-	{
+-		wcrpg_error("Could not lock render texture");
+-		return;
+-	}
+-	if(d3ds->LockRect(&d3drs,0,0) != D3D_OK)
+-	{
+-		wcrpg_error("Could not lock render source");
+-		return;
+-	}
+-	/* Get metrics */
+-	dptr = (pixel32*)d3drd.pBits;
+-	drank = d3drd.Pitch/sizeof(pixel32);
+-	sptr = (pixel32*)d3drs.pBits;
+-	srank = d3drs.Pitch/sizeof(pixel32);
+-	/* Do the transfer */
+-	for(y = 0;y < WCRPG_HEIGHT*wcrpg_get_mag();y++)
+-	{
+-		/* Find the sources */
+-		source = &sptr[y*srank];
+-		dest = &dptr[y*drank];
+-		memcpy_s(dest,sizeof(pixel32)*WCRPG_WIDTH*wcrpg_get_mag(),source,sizeof(pixel32)*WCRPG_WIDTH*wcrpg_get_mag());
+-	}
+-	/* Unlock the surfaces */
+-	if(d3ds->UnlockRect() != D3D_OK)
+-	{
+-		wcrpg_error("Could not unlock render source");
+-		return;
+-	}
+-	if(render_texture->UnlockRect(0) != D3D_OK)
+-	{
+-		wcrpg_error("Could not unlock render texture");
+-		return;
+-	}
+-	/* Draw results */
+-	wcdraw_set_shader(wcdraw_current_screen_shader);
+-	wcdraw_texture(render_texture,render_image,0,0,render_width,render_height,0,0,512,512,0.0f,0.0f,0.0f,0,0,0,0,0,0.0f);
+-	wcdraw_set_shader(0);
+-	/* Finish */
+-	rtarg->Release();
+-}
++void wcdraw_screen_shader(){}
+ 
+ /* Sets screen shader */
+-void wcdraw_set_screen_shader(int ix)
+-{
+-	wcdraw_current_screen_shader = ix;
+-}
++void wcdraw_set_screen_shader(int ix){}
+ 
+ /* Tints the screen using a software method, or the HLSL method */
+-void wcdraw_tint_screen(float r,float g,float b,float s)
+-{
+-	D3DLOCKED_RECT d3drs,d3drd;
+-	LPDIRECT3DSURFACE9 rtarg;
+-	pixel32 *sptr,*dptr,*source,*dest;
+-	float sinv;
+-	int addr,addg,addb;
+-	int subr,subg,subb;
+-	int srank,drank;
+-	int tempr,tempg,tempb;
+-	int enr,eng,enb;
+-	int denr,deng,denb;
+-	int x,y;
+-	/* Don't do anything if not tinting */
+-	if(r == 1.0f && g == 1.0f && b == 1.0f && s == 1.0f)
+-		return;
+-	if(wcdraw_reset_mode)
+-		return;
+-	/* Disabled shader */
+-	if(!wcdraw_enable_shader)
+-	{
+-		/* Find color changes */
+-		sinv = 1.0f-s;
+-		addr = 0;
+-		subr = 0;
+-		addg = 0;
+-		subg = 0;
+-		addb = 0;
+-		subb = 0;
+-		if(r > 1.0f)
+-			addr = (int)((r-1.0f)*0xFF);
+-		if(g > 1.0f)
+-			addg = (int)((g-1.0f)*0xFF);
+-		if(b > 1.0f)
+-			addb = (int)((b-1.0f)*0xFF);
+-		if(r < 1.0f)
+-			subr = (int)((1.0f-r)*0xFF);
+-		if(g < 1.0f)
+-			subg = (int)((1.0f-g)*0xFF);
+-		if(b < 1.0f)
+-			subb = (int)((1.0f-b)*0xFF);
+-	}
+-	/* Get current picture in */
+-	d3ddev->Present(NULL,NULL,NULL,NULL);
+-	/* Copy the picture */
+-	if(d3ddev->GetRenderTarget(0,&rtarg) != D3D_OK)
+-	{
+-		wcrpg_error("Could not get render target");
+-		return;
+-	}
+-	if(d3ddev->GetRenderTargetData(rtarg,d3ds) != D3D_OK)
+-	{
+-		wcrpg_error("Could not get render target data");
+-		return;
+-	}
+-	/* Lock the surfaces */
+-	if(render_texture->LockRect(0,&d3drd,0,0) != D3D_OK)
+-	{
+-		wcrpg_error("Could not lock render texture");
+-		return;
+-	}
+-	if(d3ds->LockRect(&d3drs,0,0) != D3D_OK)
+-	{
+-		wcrpg_error("Could not lock render source");
+-		return;
+-	}
+-	/* Get metrics */
+-	dptr = (pixel32*)d3drd.pBits;
+-	drank = d3drd.Pitch/sizeof(pixel32);
+-	sptr = (pixel32*)d3drs.pBits;
+-	srank = d3drs.Pitch/sizeof(pixel32);
+-	/* Modify pixels */
+-	if(!wcdraw_enable_shader)
+-	{
+-		/* Do the transfer */
+-		for(y = 0;y < WCRPG_HEIGHT*wcrpg_get_mag();y++)
+-		{
+-			/* Find the sources */
+-			source = &sptr[y*srank];
+-			dest = &dptr[y*drank];
+-			/* Run a scanline */
+-			for(x = 0;x < WCRPG_WIDTH*wcrpg_get_mag();x++)
+-			{
+-				/* Get source color */
+-				tempr = source->r;
+-				tempg = source->g;
+-				tempb = source->b;
+-				/* Sat/Desat */
+-				if(s != 1.0f)
+-				{
+-					/* Find the entropic color */
+-					enr = (tempr+tempg+tempb)/3;
+-					eng = enr;
+-					enb = enr;
+-					/* Calculate entropic distance */
+-					denr = enr-tempr;
+-					deng = eng-tempg;
+-					denb = enb-tempb;
+-					/* Scale entropic distance */
+-					tempr = tempr+(int)(denr*sinv);
+-					WCDRAW_CHANNEL_CLAMP(tempr);
+-					tempg = tempg+(int)(deng*sinv);
+-					WCDRAW_CHANNEL_CLAMP(tempg);
+-					tempb = tempb+(int)(denb*sinv);
+-					WCDRAW_CHANNEL_CLAMP(tempb);
+-				}
+-				/* Color */
+-				dest->r = wcdraw_channel_add[wcdraw_channel_sub[tempr][subr]][addr];
+-				dest->g = wcdraw_channel_add[wcdraw_channel_sub[tempg][subg]][addg];
+-				dest->b = wcdraw_channel_add[wcdraw_channel_sub[tempb][subb]][addb];
+-				dest->a = 0xFF;
+-				/* Advance */
+-				source++;
+-				dest++;
+-			}
+-		}
+-	}
+-	else
+-	{
+-		/* Do the transfer */
+-		for(y = 0;y < WCRPG_HEIGHT*wcrpg_get_mag();y++)
+-		{
+-			/* Find the sources */
+-			source = &sptr[y*srank];
+-			dest = &dptr[y*drank];
+-			memcpy_s(dest,sizeof(pixel32)*WCRPG_WIDTH*wcrpg_get_mag(),source,sizeof(pixel32)*WCRPG_WIDTH*wcrpg_get_mag());
+-		}
+-	}
+-	/* Unlock the surfaces */
+-	if(d3ds->UnlockRect() != D3D_OK)
+-	{
+-		wcrpg_error("Could not unlock render source");
+-		return;
+-	}
+-	if(render_texture->UnlockRect(0) != D3D_OK)
+-	{
+-		wcrpg_error("Could not unlock render texture");
+-		return;
+-	}
+-	/* Draw results */
+-	wcdraw_fx_tint_color[0] = r;
+-	wcdraw_fx_tint_color[1] = g;
+-	wcdraw_fx_tint_color[2] = b;
+-	wcdraw_fx_tint_color[3] = s;
+-	wcdraw_set_shader(wcdraw_tint_shader);
+-	wcdraw_texture(render_texture,render_image,0,0,render_width,render_height,0,0,512,512,0.0f,0.0f,0.0f,0,0,0,0,0,0.0f);
+-	wcdraw_set_shader(0);
+-	/* Finish */
+-	rtarg->Release();
+-}
++void wcdraw_tint_screen(float r,float g,float b,float s){}
+ 
+ /* Autocalculates channel functions */
+-void wcdraw_calculate_channel_arithmetic()
+-{
+-	int a,b;
+-	for(a = 0;a < 256;a++)
+-	{
+-		for(b = 0;b < 256;b++)
+-		{
+-			/* Addition */
+-			if(a+b >= 255)
+-				wcdraw_channel_add[a][b] = 255;
+-			else
+-				wcdraw_channel_add[a][b] = a+b;
+-			/* Subtraction */
+-			if(a-b <= 0)
+-				wcdraw_channel_sub[a][b] = 0;
+-			else
+-				wcdraw_channel_sub[a][b] = a-b;
+-		}
+-	}
+-}
++void wcdraw_calculate_channel_arithmetic(){}
+ 
+ /* Sets local mag */
+-void wcdraw_set_local_mag(float m)
+-{
+-	wcdraw_local_mag = m;
+-}
++void wcdraw_set_local_mag(float m){}
+ 
+ /* Resets local mag */
+-void wcdraw_reset_local_mag()
+-{
+-	wcdraw_local_mag = 1.0f;
+-}
++void wcdraw_reset_local_mag(){}
+ 
+ /* Starts counting triangles */
+ void wcdraw_triangle_count_reset()
+ {
+-	wcdraw_tri_count = 0;
++	//wcdraw_tri_count = 0;
+ }
+ 
+ /* Returns the triangle count */
+ int wcdraw_triangle_count()
+ {
+-	return wcdraw_tri_count;
++	//return wcdraw_tri_count;
+ }
+ 
+ /* Sets the presentation params */
+ void wcdraw_normal_presentation()
+ {
+-	/* Create a device */
+-	memset(&d3dpp,0,sizeof(d3dpp));
+-	d3dpp.BackBufferWidth = WCRPG_WIDTH*wcrpg_get_mag();
+-	d3dpp.BackBufferHeight = WCRPG_HEIGHT*wcrpg_get_mag();
+-	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+-	d3dpp.BackBufferCount = 1;
+-	d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
+-	d3dpp.hDeviceWindow = hwnd;
+-	d3dpp.Windowed = 1;
++	///* Create a device */
++	//memset(&d3dpp,0,sizeof(d3dpp));
++	//d3dpp.BackBufferWidth = WCRPG_WIDTH*wcrpg_get_mag();
++	//d3dpp.BackBufferHeight = WCRPG_HEIGHT*wcrpg_get_mag();
++	//d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
++	//d3dpp.BackBufferCount = 1;
++	//d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
++	//d3dpp.hDeviceWindow = hwnd;
++	//d3dpp.Windowed = 1;
+ }
+ 
+ /* Sets the properties for default display mode */
+ void wcdraw_normal_display()
+ {
+-	/* Set render state */
+-	d3ddev->SetRenderState(D3DRS_LIGHTING,0);
+-	d3ddev->SetRenderState(D3DRS_ALPHABLENDENABLE,1);
+-	d3ddev->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
+-	d3ddev->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
+-	d3ddev->SetTextureStageState(0,D3DTSS_ALPHAOP,D3DTOP_MODULATE);
+-	/* Old school filters on */
+-	d3ddev->SetSamplerState(0,D3DSAMP_MAGFILTER,D3DTEXF_NONE);
+-	d3ddev->SetSamplerState(0,D3DSAMP_MINFILTER,D3DTEXF_NONE);
++	///* Set render state */
++	//d3ddev->SetRenderState(D3DRS_LIGHTING,0);
++	//d3ddev->SetRenderState(D3DRS_ALPHABLENDENABLE,1);
++	//d3ddev->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
++	//d3ddev->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
++	//d3ddev->SetTextureStageState(0,D3DTSS_ALPHAOP,D3DTOP_MODULATE);
++	///* Old school filters on */
++	//d3ddev->SetSamplerState(0,D3DSAMP_MAGFILTER,D3DTEXF_NONE);
++	//d3ddev->SetSamplerState(0,D3DSAMP_MINFILTER,D3DTEXF_NONE);
+ }
+ 
+ /* Sets up the framebuffer */
+ void wcdraw_set_framebuffer()
+ {
+-	/* Recalc size */
+-	render_width = 512*wcrpg_get_mag();
+-	render_height = 512*wcrpg_get_mag();
+-	/* Create a framebuffer */
+-	if(d3ddev->CreateOffscreenPlainSurface(WCRPG_WIDTH*wcrpg_get_mag(),WCRPG_HEIGHT*wcrpg_get_mag(),D3DFMT_X8R8G8B8,D3DPOOL_SYSTEMMEM,&d3ds,0) != D3D_OK)
+-	{
+-		wcrpg_error("Could not create effect buffer");
+-		return;
+-	}
+-	/* Create a texture */
+-	if(d3ddev->CreateTexture(render_width,render_height,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,&render_texture,0) != D3D_OK)
+-	{
+-		wcrpg_error("Could not create render texture");
+-		return;
+-	}
+-	render_image = new image(render_width,render_height);
+-	render_image->reduce();
++	///* Recalc size */
++	//render_width = 512*wcrpg_get_mag();
++	//render_height = 512*wcrpg_get_mag();
++	///* Create a framebuffer */
++	//if(d3ddev->CreateOffscreenPlainSurface(WCRPG_WIDTH*wcrpg_get_mag(),WCRPG_HEIGHT*wcrpg_get_mag(),D3DFMT_X8R8G8B8,D3DPOOL_SYSTEMMEM,&d3ds,0) != D3D_OK)
++	//{
++	//	wcrpg_error("Could not create effect buffer");
++	//	return;
++	//}
++	///* Create a texture */
++	//if(d3ddev->CreateTexture(render_width,render_height,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,&render_texture,0) != D3D_OK)
++	//{
++	//	wcrpg_error("Could not create render texture");
++	//	return;
++	//}
++	//render_image = new image(render_width,render_height);
++	//render_image->reduce();
+ }
+ 
+ /* Start the graphics system */
+ int wcdraw_start()
+ {
+-	HRESULT r;
+-	/* Get the window HWND */
+-	if(!SDL_GetWMInfo(&wmi))
+-	{
+-		wcrpg_error("Could not get window info (%s)",SDL_GetError());
+-		return 0;
+-	}
+-	hwnd = (HWND)wmi.window;
+-	/* Initialize D3D */
+-	d3d = Direct3DCreate9(D3D_SDK_VERSION);
+-	if(!d3d)
+-	{
+-		wcrpg_error("Could not start DirectX, check your DirectX for updates");
+-		return 0;
+-	}
+-	/* Normal present */
+-	wcdraw_normal_presentation();
+-	r = d3d->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hwnd,D3DCREATE_SOFTWARE_VERTEXPROCESSING,&d3dpp,&d3ddev);
+-	if(r != D3D_OK)
+-	{
+-		switch(r)
+-		{
+-		case D3DERR_DEVICELOST:
+-			wcrpg_error("Direct3D device lost");
+-			break;
+-		case D3DERR_INVALIDCALL:
+-			wcrpg_error("Invalid Direct3D device creation call");
+-			break;
+-		case D3DERR_NOTAVAILABLE:
+-			wcrpg_error("Direct3D device requested is not availiable");
+-			break;
+-		case D3DERR_OUTOFVIDEOMEMORY:
+-			wcrpg_error("There isn't enough video memory to create Direct3D device");
+-			break;
+-		}
+-		return 0;
+-	}
+-	/* Create a vertex buffer */
+-	d3ddev->SetVertexShader(NULL);
+-	d3ddev->SetFVF(wcrpgvf);
+-	if(d3ddev->CreateVertexBuffer(sizeof(vertex)*4,NULL,wcrpgvf,D3DPOOL_MANAGED,&d3dvb,NULL) != D3D_OK)
+-	{
+-		wcrpg_error("Could not create vertex buffer.");
+-		return 0;
+-	}
+-	if(d3ddev->SetStreamSource(0,d3dvb,0,sizeof(vertex)) != D3D_OK)
+-	{
+-		wcrpg_error("Could not set vertex stream source.");
+-		return 0;
+-	}
+-	/* Normal */
+-	wcdraw_normal_display();
+-	/* Calculate color channel arithmetic */
+-	wcdraw_calculate_channel_arithmetic();
+-	wcdraw_set_framebuffer();
+-	/* Figure out caps */
+-	memset(&wcdraw_caps,0,sizeof(wcdraw_caps));
+-	d3ddev->GetDeviceCaps(&wcdraw_caps);
+-	/* Report shader model */
+-	wclog_write(wcrpg_get_log(),"System uses pixel shader model ");
+-	wclog_write(wcrpg_get_log(),(wcdraw_caps.PixelShaderVersion&0xFFFF)>>8);
+-	wclog_enter(wcrpg_get_log());
+-	if((wcdraw_caps.PixelShaderVersion&0xFFFF)>>8 < 2)
+-		wcdraw_enable_shader = 0;
+-	wclog_write(wcrpg_get_log(),"Shader enable switch set to ");
+-	wclog_write(wcrpg_get_log(),wcdraw_enable_shader);
+-	wclog_enter(wcrpg_get_log());
+-	/* Load shaders */
+-	wcdraw_shader_list = wcarray_new();
+-	if(wcdraw_enable_shader)
+-		wcdraw_tint_shader = new shader(fx_tint,"fx_tint");
++	//HRESULT r;
++	///* Get the window HWND */
++	//if(!SDL_GetWMInfo(&wmi))
++	//{
++	//	wcrpg_error("Could not get window info (%s)",SDL_GetError());
++	//	return 0;
++	//}
++	//hwnd = (HWND)wmi.window;
++	///* Initialize D3D */
++	//d3d = Direct3DCreate9(D3D_SDK_VERSION);
++	//if(!d3d)
++	//{
++	//	wcrpg_error("Could not start DirectX, check your DirectX for updates");
++	//	return 0;
++	//}
++	///* Normal present */
++	//wcdraw_normal_presentation();
++	//r = d3d->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hwnd,D3DCREATE_SOFTWARE_VERTEXPROCESSING,&d3dpp,&d3ddev);
++	//if(r != D3D_OK)
++	//{
++	//	switch(r)
++	//	{
++	//	case D3DERR_DEVICELOST:
++	//		wcrpg_error("Direct3D device lost");
++	//		break;
++	//	case D3DERR_INVALIDCALL:
++	//		wcrpg_error("Invalid Direct3D device creation call");
++	//		break;
++	//	case D3DERR_NOTAVAILABLE:
++	//		wcrpg_error("Direct3D device requested is not availiable");
++	//		break;
++	//	case D3DERR_OUTOFVIDEOMEMORY:
++	//		wcrpg_error("There isn't enough video memory to create Direct3D device");
++	//		break;
++	//	}
++	//	return 0;
++	//}
++	///* Create a vertex buffer */
++	//d3ddev->SetVertexShader(NULL);
++	//d3ddev->SetFVF(wcrpgvf);
++	//if(d3ddev->CreateVertexBuffer(sizeof(vertex)*4,NULL,wcrpgvf,D3DPOOL_MANAGED,&d3dvb,NULL) != D3D_OK)
++	//{
++	//	wcrpg_error("Could not create vertex buffer.");
++	//	return 0;
++	//}
++	//if(d3ddev->SetStreamSource(0,d3dvb,0,sizeof(vertex)) != D3D_OK)
++	//{
++	//	wcrpg_error("Could not set vertex stream source.");
++	//	return 0;
++	//}
++	///* Normal */
++	//wcdraw_normal_display();
++	///* Calculate color channel arithmetic */
++	//wcdraw_calculate_channel_arithmetic();
++	//wcdraw_set_framebuffer();
++	///* Figure out caps */
++	//memset(&wcdraw_caps,0,sizeof(wcdraw_caps));
++	//d3ddev->GetDeviceCaps(&wcdraw_caps);
++	///* Report shader model */
++	//wclog_write(wcrpg_get_log(),"System uses pixel shader model ");
++	//wclog_write(wcrpg_get_log(),(wcdraw_caps.PixelShaderVersion&0xFFFF)>>8);
++	//wclog_enter(wcrpg_get_log());
++	//if((wcdraw_caps.PixelShaderVersion&0xFFFF)>>8 < 2)
++	//	wcdraw_enable_shader = 0;
++	//wclog_write(wcrpg_get_log(),"Shader enable switch set to ");
++	//wclog_write(wcrpg_get_log(),wcdraw_enable_shader);
++	//wclog_enter(wcrpg_get_log());
++	///* Load shaders */
++	//wcdraw_shader_list = wcarray_new();
++	//if(wcdraw_enable_shader)
++	//	wcdraw_tint_shader = new shader(fx_tint,"fx_tint");
+ 	return 1;
+ }
+ 
+ /* Stops the graphics system */
+ void wcdraw_end()
+ {
+-	int i;
+-	/* Release shaders */
+-	for(i = 0;i < wcarray_size(wcdraw_shader_list);i++)
+-		delete (shader*)wcarray_get(wcdraw_shader_list,i);
+-	wcarray_delete(wcdraw_shader_list);
+-	/* Release tint shader */
+-	delete wcdraw_tint_shader;
+-	/* Release vertex data */
+-	d3ddev->SetStreamSource(0,NULL,0,0);
+-	d3dvb->Release();
+-	d3ds->Release();
+-	render_texture->Release();
+-	delete render_image;
+-	/* Release D3D */
+-	d3ddev->Release();
+-	d3d->Release();
++	//int i;
++	///* Release shaders */
++	//for(i = 0;i < wcarray_size(wcdraw_shader_list);i++)
++	//	delete (shader*)wcarray_get(wcdraw_shader_list,i);
++	//wcarray_delete(wcdraw_shader_list);
++	///* Release tint shader */
++	//delete wcdraw_tint_shader;
++	///* Release vertex data */
++	//d3ddev->SetStreamSource(0,NULL,0,0);
++	//d3dvb->Release();
++	//d3ds->Release();
++	//render_texture->Release();
++	//delete render_image;
++	///* Release D3D */
++	//d3ddev->Release();
++	//d3d->Release();
+ }
+ 
+ /* Renders the current game state */
+ void wcdraw_frame()
+-{
+-	HRESULT r;
+-	r = d3ddev->TestCooperativeLevel();
+-	/* Test for device lost */
+-	if(D3DERR_DEVICELOST == r && !wcdraw_reset_mode)
+-	{
+-		/* Lose shaders */
+-		if(wcdraw_tint_shader)
+-			wcdraw_tint_shader->lose();
+-		wcdraw_lose_all_shaders();
+-		/* Report this failure and await */
+-		wclog_write(wcrpg_get_log(),"DirectX device has been lost");
+-		wclog_enter(wcrpg_get_log());
+-		wcdraw_reset_mode = 1;
+-		return;
+-	}
+-	/* Test for reset */
+-	if(D3DERR_DEVICENOTRESET == r && wcdraw_reset_mode)
+-	{
+-		/* Report attempt to reset */
+-		wclog_write(wcrpg_get_log(),"DirectX device is ready for reset");
+-		wclog_enter(wcrpg_get_log());
+-		/* Release vertex data */
+-		d3ddev->SetStreamSource(0,NULL,0,0);
+-		d3dvb->Release();
+-		d3ds->Release();
+-		/* Normal present */
+-		wcdraw_normal_presentation();
+-		/* Reset */
+-		if(d3ddev->Reset(&d3dpp) != D3D_OK)
+-		{
+-			wcrpg_error("Could not reset DirectX device");
+-			wcrpg_exit();
+-			return;
+-		}
+-		/* Reset shaders */
+-		if(wcdraw_tint_shader)
+-			wcdraw_tint_shader->reset();
+-		wcdraw_reset_all_shaders();
+-		/* Re-Create a vertex buffer */
+-		d3ddev->SetVertexShader(NULL);
+-		d3ddev->SetFVF(wcrpgvf);
+-		if(d3ddev->CreateVertexBuffer(sizeof(vertex)*4,NULL,wcrpgvf,D3DPOOL_MANAGED,&d3dvb,NULL) != D3D_OK)
+-		{
+-			wcrpg_error("Could not re-create vertex buffer.");
+-			wcrpg_exit();
+-			return;
+-		}
+-		if(d3ddev->SetStreamSource(0,d3dvb,0,sizeof(vertex)) != D3D_OK)
+-		{
+-			wcrpg_error("Could not reset vertex stream source.");
+-			wcrpg_exit();
+-			return;
+-		}
+-		/* Normal */
+-		wcdraw_normal_display();
+-		/* Get surface */
+-		wcdraw_set_framebuffer();
+-		/* Reset occured */
+-		wclog_write(wcrpg_get_log(),"DirectX device has been reset");
+-		wclog_enter(wcrpg_get_log());
+-		wcdraw_reset_mode = 0;
+-		wcdraw_reset_count++;
+-		return;
+-	}
+-	/* Test for driver crash */
+-	if(D3DERR_DRIVERINTERNALERROR == r)
+-	{
+-		wcrpg_error("Video driver has failed, please check your video driver.");
+-		wcrpg_exit();
+-		return;
+-	}
+-	/* Wipe out old picture */
+-	d3ddev->Clear(0,NULL,D3DCLEAR_TARGET,D3DCOLOR_XRGB(0,0,0),1.0f,0);
+-	/* Begin the scene */
+-	d3ddev->BeginScene();
+-	/* Do it */
+-	wcnucleus_draw();
+-	/* End the scene */
+-	d3ddev->EndScene();
+-	/* Present the picture */
+-	d3ddev->Present(NULL,NULL,NULL,NULL);
++{	wcnucleus_draw();
+ }
+ 
+ /* Loads a texture */
+-LPDIRECT3DTEXTURE9 wcdraw_load_texture(image *i)
++//LPDIRECT3DTEXTURE9 wcdraw_load_texture(image *i)
++int wcdraw_load_texture(image *i)
+ {
+-	LPDIRECT3DTEXTURE9 tex;
+-	void *v;
+-	/* Generate */
+-	v = i->generate_bmp();
+-	/* Load */
+-	if(FAILED(D3DXCreateTextureFromFileInMemory(d3ddev,v,i->size_of_bmp(),&tex)))
+-	{
+-		wcrpg_error("Could not create texture.");
+-		return 0;
+-	}
+-	/* Done */
+-	free(v);
+-	wcdraw_total_vram += i->get_width()*i->get_height()*4;
+-	if(wcdraw_total_vram > wcdraw_peak_vram)
+-		wcdraw_peak_vram = wcdraw_total_vram;
+-	return tex;
++	return -1;
++	//LPDIRECT3DTEXTURE9 tex;
++	//void *v;
++	///* Generate */
++	//v = i->generate_bmp();
++	///* Load */
++	//if(FAILED(D3DXCreateTextureFromFileInMemory(d3ddev,v,i->size_of_bmp(),&tex)))
++	//{
++	//	wcrpg_error("Could not create texture.");
++	//	return 0;
++	//}
++	///* Done */
++	//free(v);
++	//wcdraw_total_vram += i->get_width()*i->get_height()*4;
++	//if(wcdraw_total_vram > wcdraw_peak_vram)
++	//	wcdraw_peak_vram = wcdraw_total_vram;
++	//return tex;
+ }
+ 
+ /* Loads a texture from resource integer, pass pointers for output width and height */
+-LPDIRECT3DTEXTURE9 wcdraw_load_texture(int intres)
++//LPDIRECT3DTEXTURE9 wcdraw_load_texture(int intres)
++int wcdraw_load_texture(int intres)
+ {
+-	LPDIRECT3DTEXTURE9 tex;
+-	HGLOBAL hbitmap;
+-	void *vres;
+-	int bsize;
+-	BITMAPFILEHEADER *bfh;
+-	/* Find the file */
+-	hbitmap = LoadResource(0,FindResource(0,MAKEINTRESOURCE(intres),RT_BITMAP));
+-	if(!hbitmap)
+-	{
+-		wcrpg_error("Could not find resource ID ",intres);
+-		return 0;
+-	}
+-	/* Map out the bitmap file header and get the size */
+-	vres = LockResource(hbitmap);
+-	bfh = (BITMAPFILEHEADER*)vres;
+-	if(!vres)
+-	{
+-		wcrpg_error("Could not lock internal resource with ID ",intres);
+-		return 0;
+-	}
+-	bsize = bfh->bfSize;
+-	/* Load */
+-	if(FAILED(D3DXCreateTextureFromFileInMemory(d3ddev,vres,bsize,&tex)))
+-	{
+-		wcrpg_error("Could not create internal texture with ID ",intres);
+-		return 0;
+-	}
+-	/* Done */
+-	UnlockResource(hbitmap);
+-	FreeResource(hbitmap);
+-	/* Return result */
+-	return tex;
++	return -1;
++	//LPDIRECT3DTEXTURE9 tex;
++	//HGLOBAL hbitmap;
++	//void *vres;
++	//int bsize;
++	//BITMAPFILEHEADER *bfh;
++	///* Find the file */
++	//hbitmap = LoadResource(0,FindResource(0,MAKEINTRESOURCE(intres),RT_BITMAP));
++	//if(!hbitmap)
++	//{
++	//	wcrpg_error("Could not find resource ID ",intres);
++	//	return 0;
++	//}
++	///* Map out the bitmap file header and get the size */
++	//vres = LockResource(hbitmap);
++	//bfh = (BITMAPFILEHEADER*)vres;
++	//if(!vres)
++	//{
++	//	wcrpg_error("Could not lock internal resource with ID ",intres);
++	//	return 0;
++	//}
++	//bsize = bfh->bfSize;
++	///* Load */
++	//if(FAILED(D3DXCreateTextureFromFileInMemory(d3ddev,vres,bsize,&tex)))
++	//{
++	//	wcrpg_error("Could not create internal texture with ID ",intres);
++	//	return 0;
++	//}
++	///* Done */
++	//UnlockResource(hbitmap);
++	//FreeResource(hbitmap);
++	///* Return result */
++	//return tex;
+ }
+ 
+ /* Make texture */
+ texture :: texture(char *filename)
+ {
+-	/* Make */
++	///* Make */
+ 	img = new image(filename);
+-	tex = wcdraw_load_texture(img);
++	tex=img->texID;
+ 	alpha = 0.0f;
+ 	alpha2 = 0.0f;
+ 	rot = 0.0f;
+@@ -936,9 +382,11 @@
+ /* Make texture */
+ texture :: texture(image *im)
+ {
+-	/* Make */
++	///* Make */
+ 	img = im;
+-	tex = wcdraw_load_texture(img);
++	//img = new image(filename);
++	//tex=img->texID;
++	tex=-1;
+ 	alpha = 0.0f;
+ 	alpha2 = 0.0f;
+ 	rot = 0.0f;
+@@ -958,10 +406,11 @@
+ /* Make texture */
+ texture :: texture(int intres,int w,int h)
+ {
+-	/* Make */
+-	tex = wcdraw_load_texture(intres);
+-	img = new image(w,h);
+-	img->reduce();
++	///* Make */
++	if(intres==116)
++		img = new image("sysfont.bmp");
++	tex=img->texID;
++
+ 	alpha = 0.0f;
+ 	alpha2 = 0.0f;
+ 	rot = 0.0f;
+@@ -981,11 +430,14 @@
+ /* Make dekeyed texture */
+ texture :: texture(char *filename,int nocolorkey)
+ {
+-	/* Make */
++	///* Make */
+ 	img = new image(filename);
+-	if(nocolorkey)
+-		img->de_color_key();
++	
++	//if(nocolorkey)
++	//	img->de_color_key();
+ 	tex = wcdraw_load_texture(img);
++	//glLoadTileSet("CharSet/hero2.png",spr,24,32,256,256);
++	tex=img->texID;
+ 	alpha = 0.0f;
+ 	alpha2 = 0.0f;
+ 	rot = 0.0f;
+@@ -1005,129 +457,129 @@
+ /* Tone texture */
+ void texture :: tone(float r,float g,float b,float s)
+ {
+-	D3DLOCKED_RECT d3dr_src,d3dr_dst;
+-	unsigned char *dst,*src;
+-	float sinv;
+-	int x,y,dstw,srcw,dsta,srca;
+-	int addr,addg,addb;
+-	int subr,subg,subb;
+-	int tempr,tempg,tempb;
+-	int enr,eng,enb;
+-	int denr,deng,denb;
+-	/* Check and see if there is any change */
+-	if(tone_red == r && tone_green == g && tone_blue == b && tone_sat == s)
+-		return; /* Nothing needs to be done here */
+-	/* Initialize color changers */
+-	addr = 0;
+-	addg = 0;
+-	addb = 0;
+-	subr = 0;
+-	subg = 0;
+-	subb = 0;
+-	/* Find color changes */
+-	if(r > 1.0f)
+-		addr = (int)((r-1.0f)*0xFF);
+-	if(g > 1.0f)
+-		addg = (int)((g-1.0f)*0xFF);
+-	if(b > 1.0f)
+-		addb = (int)((b-1.0f)*0xFF);
+-	if(r < 1.0f)
+-		subr = (int)((1.0f-r)*0xFF);
+-	if(g < 1.0f)
+-		subg = (int)((1.0f-g)*0xFF);
+-	if(b < 1.0f)
+-		subb = (int)((1.0f-b)*0xFF);
+-	/* Memorize */
+-	tone_red = r;
+-	tone_green = g;
+-	tone_blue = b;
+-	tone_sat = s;
+-	/* Check and see if this has been toned before */
+-	if(!stex)
+-	{
+-		/* Swap pointers */
+-		stex = tex;
+-		tex = 0;
+-		/* Create a new blank texture */
+-		if(FAILED(d3ddev->CreateTexture(img->get_width(),img->get_height(),1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,&tex,NULL)))
+-		{
+-			wcrpg_error("Could not create tone texture.");
+-			return;
+-		}
+-	}
+-	/* Lock both */
+-	if(FAILED(stex->LockRect(0,&d3dr_src,NULL,D3DLOCK_READONLY)))
+-	{
+-		wcrpg_error("Could not lock source tone texture.");
+-		return;
+-	}
+-	if(FAILED(tex->LockRect(0,&d3dr_dst,NULL,0)))
+-	{
+-		wcrpg_error("Could not lock destination tone texture.");
+-		return;
+-	}
+-	/* Process the destination based on the source, using only the visible area to save processor power */
+-	dst = (unsigned char*)d3dr_dst.pBits;
+-	src = (unsigned char*)d3dr_src.pBits;
+-	dstw = d3dr_dst.Pitch;
+-	srcw = d3dr_src.Pitch;
+-	sinv = 1.0f-s;
+-	for(y = 0;y < img->get_visible_height();y++)
+-	{
+-		/* Calculate y ranks */
+-		dsta = dstw*y;
+-		srca = srcw*y;
+-		/* Process the line */
+-		for(x = 0;x < img->get_visible_width();x++)
+-		{
+-			/* Get source color */
+-			tempr = src[(x<<2)+srca+2];
+-			tempg = src[(x<<2)+srca+1];
+-			tempb = src[(x<<2)+srca];
+-			/* Sat/Desat */
+-			if(s != 1.0f)
+-			{
+-				/* Find the entropic color */
+-				enr = (tempr+tempg+tempb)/3;
+-				eng = enr;
+-				enb = enr;
+-				/* Calculate entropic distance */
+-				denr = enr-tempr;
+-				deng = eng-tempg;
+-				denb = enb-tempb;
+-				/* Scale entropic distance */
+-				tempr = tempr+(int)(denr*sinv);
+-				WCDRAW_CHANNEL_CLAMP(tempr);
+-				tempg = tempg+(int)(deng*sinv);
+-				WCDRAW_CHANNEL_CLAMP(tempg);
+-				tempb = tempb+(int)(denb*sinv);
+-				WCDRAW_CHANNEL_CLAMP(tempb);
+-			}
+-			/* Effect color */
+-			dst[(x<<2)+dsta] = wcdraw_channel_add[wcdraw_channel_sub[tempb][subb]][addb];
+-			dst[(x<<2)+dsta+1] = wcdraw_channel_add[wcdraw_channel_sub[tempg][subg]][addg];
+-			dst[(x<<2)+dsta+2] = wcdraw_channel_add[wcdraw_channel_sub[tempr][subr]][addr];
+-			dst[(x<<2)+dsta+3] = src[(x<<2)+srca+3];
+-		}
+-	}
+-	/* Unlock both */
+-	if(FAILED(tex->UnlockRect(0)))
+-	{
+-		wcrpg_error("Could not unlock destination tone texture.");
+-		return;
+-	}
+-	if(FAILED(stex->UnlockRect(0)))
+-	{
+-		wcrpg_error("Could not unlock source tone texture.");
+-		return;
+-	}
++	//D3DLOCKED_RECT d3dr_src,d3dr_dst;
++	//unsigned char *dst,*src;
++	//float sinv;
++	//int x,y,dstw,srcw,dsta,srca;
++	//int addr,addg,addb;
++	//int subr,subg,subb;
++	//int tempr,tempg,tempb;
++	//int enr,eng,enb;
++	//int denr,deng,denb;
++	///* Check and see if there is any change */
++	//if(tone_red == r && tone_green == g && tone_blue == b && tone_sat == s)
++	//	return; /* Nothing needs to be done here */
++	///* Initialize color changers */
++	//addr = 0;
++	//addg = 0;
++	//addb = 0;
++	//subr = 0;
++	//subg = 0;
++	//subb = 0;
++	///* Find color changes */
++	//if(r > 1.0f)
++	//	addr = (int)((r-1.0f)*0xFF);
++	//if(g > 1.0f)
++	//	addg = (int)((g-1.0f)*0xFF);
++	//if(b > 1.0f)
++	//	addb = (int)((b-1.0f)*0xFF);
++	//if(r < 1.0f)
++	//	subr = (int)((1.0f-r)*0xFF);
++	//if(g < 1.0f)
++	//	subg = (int)((1.0f-g)*0xFF);
++	//if(b < 1.0f)
++	//	subb = (int)((1.0f-b)*0xFF);
++	///* Memorize */
++	//tone_red = r;
++	//tone_green = g;
++	//tone_blue = b;
++	//tone_sat = s;
++	///* Check and see if this has been toned before */
++	//if(!stex)
++	//{
++	//	/* Swap pointers */
++	//	stex = tex;
++	//	tex = 0;
++	//	/* Create a new blank texture */
++	//	if(FAILED(d3ddev->CreateTexture(img->get_width(),img->get_height(),1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,&tex,NULL)))
++	//	{
++	//		wcrpg_error("Could not create tone texture.");
++	//		return;
++	//	}
++	//}
++	///* Lock both */
++	//if(FAILED(stex->LockRect(0,&d3dr_src,NULL,D3DLOCK_READONLY)))
++	//{
++	//	wcrpg_error("Could not lock source tone texture.");
++	//	return;
++	//}
++	//if(FAILED(tex->LockRect(0,&d3dr_dst,NULL,0)))
++	//{
++	//	wcrpg_error("Could not lock destination tone texture.");
++	//	return;
++	//}
++	///* Process the destination based on the source, using only the visible area to save processor power */
++	//dst = (unsigned char*)d3dr_dst.pBits;
++	//src = (unsigned char*)d3dr_src.pBits;
++	//dstw = d3dr_dst.Pitch;
++	//srcw = d3dr_src.Pitch;
++	//sinv = 1.0f-s;
++	//for(y = 0;y < img->get_visible_height();y++)
++	//{
++	//	/* Calculate y ranks */
++	//	dsta = dstw*y;
++	//	srca = srcw*y;
++	//	/* Process the line */
++	//	for(x = 0;x < img->get_visible_width();x++)
++	//	{
++	//		/* Get source color */
++	//		tempr = src[(x<<2)+srca+2];
++	//		tempg = src[(x<<2)+srca+1];
++	//		tempb = src[(x<<2)+srca];
++	//		/* Sat/Desat */
++	//		if(s != 1.0f)
++	//		{
++	//			/* Find the entropic color */
++	//			enr = (tempr+tempg+tempb)/3;
++	//			eng = enr;
++	//			enb = enr;
++	//			/* Calculate entropic distance */
++	//			denr = enr-tempr;
++	//			deng = eng-tempg;
++	//			denb = enb-tempb;
++	//			/* Scale entropic distance */
++	//			tempr = tempr+(int)(denr*sinv);
++	//			WCDRAW_CHANNEL_CLAMP(tempr);
++	//			tempg = tempg+(int)(deng*sinv);
++	//			WCDRAW_CHANNEL_CLAMP(tempg);
++	//			tempb = tempb+(int)(denb*sinv);
++	//			WCDRAW_CHANNEL_CLAMP(tempb);
++	//		}
++	//		/* Effect color */
++	//		dst[(x<<2)+dsta] = wcdraw_channel_add[wcdraw_channel_sub[tempb][subb]][addb];
++	//		dst[(x<<2)+dsta+1] = wcdraw_channel_add[wcdraw_channel_sub[tempg][subg]][addg];
++	//		dst[(x<<2)+dsta+2] = wcdraw_channel_add[wcdraw_channel_sub[tempr][subr]][addr];
++	//		dst[(x<<2)+dsta+3] = src[(x<<2)+srca+3];
++	//	}
++	//}
++	///* Unlock both */
++	//if(FAILED(tex->UnlockRect(0)))
++	//{
++	//	wcrpg_error("Could not unlock destination tone texture.");
++	//	return;
++	//}
++	//if(FAILED(stex->UnlockRect(0)))
++	//{
++	//	wcrpg_error("Could not unlock source tone texture.");
++	//	return;
++	//}
+ }
+ 
+ /* Free texture */
+ texture :: ~texture()
+ {
+ 	/* Delete */
+-	tex->Release();
++	/*tex->Release();
+ 	tex = 0;
+ 	if(stex)
+ 		stex->Release();
+@@ -1136,152 +588,186 @@
+ 	ftex = 0;
+ 	stex = 0;
+ 	wcdraw_total_vram -= img->get_width()*img->get_height()*4;
+-	delete img;
++	delete img;*/
+ }
+ 
+ /* Draw texture full */
+-void wcdraw_texture(LPDIRECT3DTEXTURE9 tex,image *img,int x,int y,int w,int h,int sx,int sy,int dw,int dh,float a,float a2,float r,LPDIRECT3DTEXTURE9 ftex,int fle,int flr,int flg,int flb,float fla)
++//void wcdraw_texture(LPDIRECT3DTEXTURE9 tex,image *img,int x,int y,int w,int h,int sx,int sy,int dw,int dh,float a,float a2,float r,LPDIRECT3DTEXTURE9 ftex,int fle,int flr,int flg,int flb,float fla)
++void wcdraw_texture(int tex,image *img,int x,int y,int w,int h,int sx,int sy,int dw,int dh,float a,float a2,float r,int ftex,int fle,int flr,int flg,int flb,float fla)
+ {
+-	vertex *verts;
+-	int i,xm,ym;
+-	int red,green,blue;
+-	float u1,v1,u2,v2;
+-	float fw,fh;
+-	float nrx,nry;
+-	float uw,vh;
+-	unsigned char alphabyte,alphabyte2;
+-	/* Boot shader */
+-	if(wcdraw_current_shader)
+-	{
+-		/* Update constants */
+-		wcdraw_current_shader->update(tex,img->get_width(),img->get_height());
+-		/* Set shader */
+-		wcdraw_current_shader->start();
+-	}
+-	/* Default color */
+-	red = 0xFF;
+-	green = 0xFF;
+-	blue = 0xFF;
+-	/* Color is defined */
+-	if(fle && !ftex)
+-	{
+-		red = flr;
+-		green = flg;
+-		blue = flb;
+-	}
+-	/* Find alpha */
+-	alphabyte = 0xFF;
+-	if(a != 0.0f)
+-		alphabyte = (unsigned char)((1.0f-a)*0xFF);
+-	alphabyte2 = 0xFF;
+-	if(a2 != 0.0f)
+-		alphabyte2 = (unsigned char)((1.0f-a2)*0xFF);
+-	/* Set coords to match mags */
+-	xm = x;
+-	ym = y;
+-	xm *= wcrpg_get_mag();
+-	ym *= wcrpg_get_mag();
+-	/* Figure out texture coordinates */
+-	uw = (float)(w)/(float)(img->get_width());
+-	vh = (float)(h)/(float)(img->get_height());
+-	u1 = (float)(sx)/(float)(img->get_width());
+-	v1 = (float)(sy)/(float)(img->get_height());
+-	u2 = u1+uw;
+-	v2 = v1+vh;
+-	/* Figure out dimensions */
+-	fw = (float)dw*wcrpg_get_mag()*wcdraw_local_mag*0.5f;
+-	fh = (float)dh*wcrpg_get_mag()*wcdraw_local_mag*0.5f;
+-	/* Lock the buffer */
+-	d3dvb->Lock(0,0,(void**)&verts,NULL);
+-	/* Modify the verticies in the sprite quad */
+-	/* Top left */
+-	verts[0].c = D3DCOLOR_ARGB(alphabyte,red,green,blue);
+-	/*verts[0].x = (float)x-0.5f;
+-	verts[0].y = (float)y-0.5f;*/
+-	verts[0].x = -fw;
+-	verts[0].y = -fh;
+-	verts[0].z = 0.0f;
+-	verts[0].w = 1.0f;
+-	verts[0].u = u1;
+-	verts[0].v = v1;
+-	/* Top right */
+-	verts[1].c = D3DCOLOR_ARGB(alphabyte,red,green,blue);
+-	/*verts[1].x = (float)(x+dw*wcrpg_get_mag()*wcdraw_local_mag)-0.5f;
+-	verts[1].y = (float)y-0.5f;*/
+-	verts[1].x = fw;
+-	verts[1].y = -fh;
+-	verts[1].z = 0.0f;
+-	verts[1].w = 1.0f;
+-	verts[1].u = u2;
+-	verts[1].v = v1;
+-	/* Bottom right */
+-	verts[2].c = D3DCOLOR_ARGB(alphabyte2,red,green,blue);
+-	/*verts[2].x = (float)(x+dw*wcrpg_get_mag()*wcdraw_local_mag)-0.5f;
+-	verts[2].y = (float)(y+dh*wcrpg_get_mag()*wcdraw_local_mag)-0.5f;*/
+-	verts[2].x = fw;
+-	verts[2].y = fh;
+-	verts[2].z = 0.0f;
+-	verts[2].w = 1.0f;
+-	verts[2].u = u2;
+-	verts[2].v = v2;
+-	/* Bottom left */
+-	verts[3].c = D3DCOLOR_ARGB(alphabyte2,red,green,blue);
+-	/*verts[3].x = (float)x-0.5f;
+-	verts[3].y = (float)(y+dh*wcrpg_get_mag()*wcdraw_local_mag)-0.5f;*/
+-	verts[3].x = -fw;
+-	verts[3].y = fh;
+-	verts[3].z = 0.0f;
+-	verts[3].w = 1.0f;
+-	verts[3].u = u1;
+-	verts[3].v = v2;
+-	/* Rotate */
+-	if(r != 0.0f)
+-	{
+-		for(i = 0;i < 4;i++)
+-		{
+-			nrx = verts[i].x*cos(r)-verts[i].y*sin(r);
+-			nry = verts[i].x*sin(r)+verts[i].y*cos(r);
+-			verts[i].x = nrx;
+-			verts[i].y = nry;
+-		}
+-	}
+-	/* Translate */
+-	for(i = 0;i < 4;i++)
+-	{
+-		verts[i].x += (float)xm-0.5f+fw;
+-		verts[i].y += (float)ym-0.5f+fh;
+-	}
+-	/* Unlock buffer */
+-	d3dvb->Unlock();
+-	/* Set texture */
+-	d3ddev->SetTexture(0,tex);
+-	d3ddev->DrawPrimitive(D3DPT_TRIANGLEFAN,0,2);
+-	/* Count triangles */
+-	wcdraw_tri_count += 2;
+-	/* Draw flash image (if any */
+-	if(ftex && fle)
+-		wcdraw_texture(ftex,img,x,y,w,h,sx,sy,dw,dh,1.0f-fla,1.0f-fla,r,0,1,flr,flg,flb,0.0f);
+-	/* End shader */
+-	if(wcdraw_current_shader)
+-		wcdraw_current_shader->end();
++	//vertex *verts;
++	//int i,xm,ym;
++	//int red,green,blue;
++	//float u1,v1,u2,v2;
++	//float fw,fh;
++	//float nrx,nry;
++	//float uw,vh;
++	//unsigned char alphabyte,alphabyte2;
++	///* Boot shader */
++	//if(wcdraw_current_shader)
++	//{
++	//	/* Update constants */
++	//	wcdraw_current_shader->update(tex,img->get_width(),img->get_height());
++	//	/* Set shader */
++	//	wcdraw_current_shader->start();
++	//}
++	///* Default color */
++	//red = 0xFF;
++	//green = 0xFF;
++	//blue = 0xFF;
++	///* Color is defined */
++	//if(fle && !ftex)
++	//{
++	//	red = flr;
++	//	green = flg;
++	//	blue = flb;
++	//}
++	///* Find alpha */
++	//alphabyte = 0xFF;
++	//if(a != 0.0f)
++	//	alphabyte = (unsigned char)((1.0f-a)*0xFF);
++	//alphabyte2 = 0xFF;
++	//if(a2 != 0.0f)
++	//	alphabyte2 = (unsigned char)((1.0f-a2)*0xFF);
++	///* Set coords to match mags */
++	//xm = x;
++	//ym = y;
++	//xm *= wcrpg_get_mag();
++	//ym *= wcrpg_get_mag();
++	///* Figure out texture coordinates */
++	//uw = (float)(w)/(float)(img->get_width());
++	//vh = (float)(h)/(float)(img->get_height());
++	//u1 = (float)(sx)/(float)(img->get_width());
++	//v1 = (float)(sy)/(float)(img->get_height());
++	//u2 = u1+uw;
++	//v2 = v1+vh;
++	///* Figure out dimensions */
++	//fw = (float)dw*wcrpg_get_mag()*wcdraw_local_mag*0.5f;
++	//fh = (float)dh*wcrpg_get_mag()*wcdraw_local_mag*0.5f;
++	///* Lock the buffer */
++	//d3dvb->Lock(0,0,(void**)&verts,NULL);
++	///* Modify the verticies in the sprite quad */
++	///* Top left */
++	//verts[0].c = D3DCOLOR_ARGB(alphabyte,red,green,blue);
++	///*verts[0].x = (float)x-0.5f;
++	//verts[0].y = (float)y-0.5f;*/
++	//verts[0].x = -fw;
++	//verts[0].y = -fh;
++	//verts[0].z = 0.0f;
++	//verts[0].w = 1.0f;
++	//verts[0].u = u1;
++	//verts[0].v = v1;
++	///* Top right */
++	//verts[1].c = D3DCOLOR_ARGB(alphabyte,red,green,blue);
++	///*verts[1].x = (float)(x+dw*wcrpg_get_mag()*wcdraw_local_mag)-0.5f;
++	//verts[1].y = (float)y-0.5f;*/
++	//verts[1].x = fw;
++	//verts[1].y = -fh;
++	//verts[1].z = 0.0f;
++	//verts[1].w = 1.0f;
++	//verts[1].u = u2;
++	//verts[1].v = v1;
++	///* Bottom right */
++	//verts[2].c = D3DCOLOR_ARGB(alphabyte2,red,green,blue);
++	///*verts[2].x = (float)(x+dw*wcrpg_get_mag()*wcdraw_local_mag)-0.5f;
++	//verts[2].y = (float)(y+dh*wcrpg_get_mag()*wcdraw_local_mag)-0.5f;*/
++	//verts[2].x = fw;
++	//verts[2].y = fh;
++	//verts[2].z = 0.0f;
++	//verts[2].w = 1.0f;
++	//verts[2].u = u2;
++	//verts[2].v = v2;
++	///* Bottom left */
++	//verts[3].c = D3DCOLOR_ARGB(alphabyte2,red,green,blue);
++	///*verts[3].x = (float)x-0.5f;
++	//verts[3].y = (float)(y+dh*wcrpg_get_mag()*wcdraw_local_mag)-0.5f;*/
++	//verts[3].x = -fw;
++	//verts[3].y = fh;
++	//verts[3].z = 0.0f;
++	//verts[3].w = 1.0f;
++	//verts[3].u = u1;
++	//verts[3].v = v2;
++	///* Rotate */
++	//if(r != 0.0f)
++	//{
++	//	for(i = 0;i < 4;i++)
++	//	{
++	//		nrx = verts[i].x*cos(r)-verts[i].y*sin(r);
++	//		nry = verts[i].x*sin(r)+verts[i].y*cos(r);
++	//		verts[i].x = nrx;
++	//		verts[i].y = nry;
++	//	}
++	//}
++	///* Translate */
++	//for(i = 0;i < 4;i++)
++	//{
++	//	verts[i].x += (float)xm-0.5f+fw;
++	//	verts[i].y += (float)ym-0.5f+fh;
++	//}
++	///* Unlock buffer */
++	//d3dvb->Unlock();
++	///* Set texture */
++	//d3ddev->SetTexture(0,tex);
++	//d3ddev->DrawPrimitive(D3DPT_TRIANGLEFAN,0,2);
++	///* Count triangles */
++	//wcdraw_tri_count += 2;
++	///* Draw flash image (if any */
++	//if(ftex && fle)
++	//	wcdraw_texture(ftex,img,x,y,w,h,sx,sy,dw,dh,1.0f-fla,1.0f-fla,r,0,1,flr,flg,flb,0.0f);
++	///* End shader */
++	//if(wcdraw_current_shader)
++	//	wcdraw_current_shader->end();
+ }
+ 
+ /* Draw texture */
+ void texture :: draw(int x,int y)
+ {
+-	wcdraw_texture(tex,img,x,y,img->get_visible_width(),img->get_visible_height(),0,0,img->get_visible_width(),img->get_visible_height(),alpha,alpha2,rot,ftex,flash_active,flash_red,flash_green,flash_blue,flash);
++	//int w=img->get_visible_width();
++	//int h=img->get_visible_height();
++	//float u=w/img->get_visible_width();
++	//float v=h/img->get_visible_height();
++
++	int w=img->get_width();
++	int h=img->get_height();
++	float u=w/w;
++	float v=h/h;
++	
++	//spriteBatchDraw_(img->texID,x,y,0,0,u,v,w,h,0);
++	//glSprite(x,y,0,&spr[0]);
++	//wcdraw_texture(tex,img,x,y,img->get_visible_width(),img->get_visible_height(),0,0,img->get_visible_width(),img->get_visible_height(),alpha,alpha2,rot,ftex,flash_active,flash_red,flash_green,flash_blue,flash);
+ }
+ 
+ /* Draw texture cutout */
+ void texture :: draw(int x,int y,int w,int h,int sx,int sy)
+-{
+-	wcdraw_texture(tex,img,x,y,w,h,sx,sy,w,h,alpha,alpha2,rot,ftex,flash_active,flash_red,flash_green,flash_blue,flash);
++{	
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "x %d y %d w %d h %d sx %d sy %d",x,y,w,h,sx,sy);
++	int w_=img->get_width();
++	int h_=img->get_height();
++	float u=(float)w/(float)w_;
++	float v=(float)h/(float)h_;
++	float u_off=(float)sx/(float)w_;
++	float v_off=(float)sy/(float)h_;
++
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "u_off %f v_off %f u %f v %f w %d h %d",u_off,v_off,u,v,w,h);
++
++	spriteBatchDraw_(img->texID,x,y,u_off,v_off,u,v,w,h,0);
++
++	//glSprite(x,y,0,&spr[0]);
++	//wcdraw_texture(tex,img,x,y,w,h,sx,sy,w,h,alpha,alpha2,rot,ftex,flash_active,flash_red,flash_green,flash_blue,flash);
+ }
+ 
+ /* Draw texture with destination rect */
+ void texture :: draw(int x,int y,int w,int h,int sx,int sy,int dw,int dh)
+ {
+-	wcdraw_texture(tex,img,x,y,w,h,sx,sy,dw,dh,alpha,alpha2,rot,ftex,flash_active,flash_red,flash_green,flash_blue,flash);
++	int w_=img->get_width();
++	int h_=img->get_height();
++	float u=w_/w_;
++	float v=h_/h_;
++
++	//spriteBatchDraw_(img->texID,x,y,0,0,u,v,w_,h_,0);
++
++	//glSprite(x,y,0,&spr[0]);
++	//wcdraw_texture(tex,img,x,y,w,h,sx,sy,dw,dh,alpha,alpha2,rot,ftex,flash_active,flash_red,flash_green,flash_blue,flash);
+ }
+ 
+ /* Return width */
+@@ -1323,7 +809,7 @@
+ /* Reduce */
+ void texture :: reduce()
+ {
+-	img->reduce();
++	//img->reduce();
+ }
+ 
+ /* Set trans */
+@@ -1342,43 +828,43 @@
+ /* Enable the flash */
+ void texture :: enable_flash()
+ {
+-	image *fimg;
+-	/* Already has flash */
+-	if(ftex)
+-		return;
+-	/* Get white pane */
+-	fimg = img->create_flash_image();
+-	/* Load it as texture */
+-	ftex = wcdraw_load_texture(fimg);
+-	/* Delete source */
+-	delete fimg;
++	//image *fimg;
++	///* Already has flash */
++	//if(ftex)
++	//	return;
++	///* Get white pane */
++	//fimg = img->create_flash_image();
++	///* Load it as texture */
++	//ftex = wcdraw_load_texture(fimg);
++	///* Delete source */
++	//delete fimg;
+ }
+ 
+ /* Set the flash */
+ void texture :: set_flash(float a,int r,int g,int b)
+ {
+-	/* Error */
+-	if(!ftex)
+-	{
+-		wcrpg_error("Cannot set the flash for a texture without flash enabled.");
+-		return;
+-	}
+-	/* Set off */
+-	if(a == 0.0f)
+-	{
+-		flash_active = 0;
+-		return;
+-	}
+-	/* Set */
+-	flash_active = 1;
+-	flash = a;
+-	flash_red = r;
+-	flash_green = g;
+-	flash_blue = b;
++	///* Error */
++	//if(!ftex)
++	//{
++	//	wcrpg_error("Cannot set the flash for a texture without flash enabled.");
++	//	return;
++	//}
++	///* Set off */
++	//if(a == 0.0f)
++	//{
++	//	flash_active = 0;
++	//	return;
++	//}
++	///* Set */
++	//flash_active = 1;
++	//flash = a;
++	//flash_red = r;
++	//flash_green = g;
++	//flash_blue = b;
+ }
+ 
+ /* Get peak VRAM */
+ int wcdraw_get_peak_vram()
+ {
+-	return wcdraw_peak_vram;
++	//return wcdraw_peak_vram;
+ }
+\ No newline at end of file
+Index: wcdraw.h
+===================================================================
+--- wcdraw.h	(revision 274)
++++ wcdraw.h	(working copy)
+@@ -5,8 +5,8 @@
+ #define WCDRAW_CHANNEL_CLAMP(v) if((v) < 0)(v)=0;if((v) > 0xFF)(v)=0xFF
+ 
+ /* Includes */
+-#include <d3d9.h>
+-#include <d3dx9.h>
++//#include <d3d9.h>
++//#include <d3dx9.h>
+ #include "wcimage.h"
+ 
+ /* Types */
+@@ -14,7 +14,8 @@
+ {
+ 	float x,y,z; /* X, Y, and Z coords */
+ 	float w; /* Homogeneous W coord */
+-	D3DCOLOR c; /* Color/Alpha blend value */
++	//D3DCOLOR c; /* Color/Alpha blend value */
++	int c; /* Color/Alpha blend value */
+ 	float u,v; /* Texture coords */
+ }vertex;
+ 
+@@ -28,11 +29,18 @@
+ {
+ private:
+ 	char *fname;
+-	LPD3DXEFFECT eff;
+-	LPD3DXBUFFER msg;
+-	D3DXHANDLE handle_texture;
+-	D3DXHANDLE handle_tint;
+-	D3DXHANDLE handle_size;
++	//LPD3DXEFFECT eff;
++	//LPD3DXBUFFER msg;
++	//D3DXHANDLE handle_texture;
++	//D3DXHANDLE handle_tint;
++	//D3DXHANDLE handle_size;
++
++	int eff;
++	int msg;
++	int handle_texture;
++	int handle_tint;
++	int handle_size;
++
+ 	int resource_index; /* Associated resource index */
+ 	/*
+ 		Gets handles
+@@ -59,7 +67,8 @@
+ 	/*
+ 		Updates constants
+ 	*/
+-	void update(LPDIRECT3DTEXTURE9 tex,int w,int h);
++	//void update(LPDIRECT3DTEXTURE9 tex,int w,int h);
++	void update(int tex,int w,int h);
+ 	/*
+ 		Lose the data attached to shader so device may reset
+ 	*/
+@@ -81,9 +90,14 @@
+ {
+ private:
+ 	image *img;
+-	LPDIRECT3DTEXTURE9 tex;
+-	LPDIRECT3DTEXTURE9 stex; /* Source texture when in software processing mode */
+-	LPDIRECT3DTEXTURE9 ftex; /* Flashing texture */
++	//LPDIRECT3DTEXTURE9 tex;
++	//LPDIRECT3DTEXTURE9 stex; /* Source texture when in software processing mode */
++	//LPDIRECT3DTEXTURE9 ftex; /* Flashing texture */
++
++	int tex;
++	int stex; /* Source texture when in software processing mode */
++	int ftex; /* Flashing texture */
++
+ 	float alpha; /* 0.0 = opaque ~ 1.0 = transparent */
+ 	float alpha2; /* Same thing but lower half's transparency */
+ 	float rot; /* Rotation angle */
+@@ -189,12 +203,14 @@
+ /*
+ 	Creates a texture from an image
+ */
+-extern LPDIRECT3DTEXTURE9 wcdraw_load_texture(image *i);
++//extern LPDIRECT3DTEXTURE9 wcdraw_load_texture(image *i);
++extern int wcdraw_load_texture(image *i);
+ 
+ /*
+ 	Draws a texture on the screen 2D style
+ */
+-extern void wcdraw_texture(LPDIRECT3DTEXTURE9 tex,image *img,int x,int y,int w,int h,int sx,int sy,int dw,int dh,float a,float a2,float r,LPDIRECT3DTEXTURE9 ftex,int fle,int flr,int flg,int flb,float fla);
++//extern void wcdraw_texture(LPDIRECT3DTEXTURE9 tex,image *img,int x,int y,int w,int h,int sx,int sy,int dw,int dh,float a,float a2,float r,LPDIRECT3DTEXTURE9 ftex,int fle,int flr,int flg,int flb,float fla);
++extern void wcdraw_texture(int tex,image *img,int x,int y,int w,int h,int sx,int sy,int dw,int dh,float a,float a2,float r,int ftex,int fle,int flr,int flg,int flb,float fla);
+ 
+ /*
+ 	Returns the triangle count
+Index: wcevent.cpp
+===================================================================
+--- wcevent.cpp	(revision 274)
++++ wcevent.cpp	(working copy)
+@@ -3,7 +3,7 @@
+ */
+ 
+ /* Includes */
+-#include <windows.h>
++//#include <windows.h>
+ #include <malloc.h>
+ #include <memory.h>
+ #include <string.h>
+@@ -17,6 +17,8 @@
+ #include "wcmisc.h"
+ #include "wcsaveio.h"
+ 
++#include "android\log.h"
++
+ /* Globals */
+ arraylist charset_pool;
+ float wcevent_continue_anim[SPEED_STEPS];
+@@ -130,6 +132,7 @@
+ /* Creates new event */
+ rpgevent :: rpgevent(FILE *f)
+ {
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "new event");
+ 	page *pg;
+ 	int code,len,rlen,i;
+ 	/* Self vars */
+@@ -385,10 +388,13 @@
+ 		{
+ 			if(!nofoot)
+ 			{
+-				if(!get_auto_walk())
++				if(!get_auto_walk()){
++					//__android_log_print(ANDROID_LOG_INFO, "adMOB", "get_auto_walk %d %d %d %d %d %d",rdraw_x-4,rdraw_y-16,24*rmag,32*rmag,sx*72*rmag+foot*24*rmag,sy*128*rmag+direction*32*rmag);
+ 					tex->draw(rdraw_x-4,rdraw_y-16,24*rmag,32*rmag,sx*72*rmag+foot*24*rmag,sy*128*rmag+direction*32*rmag);
+-				else
++				}
++				else{
+ 					tex->draw(rdraw_x-4,rdraw_y-16,24*rmag,32*rmag,sx*72*rmag+wcevent_anim_step_walk[get_speed()]*24*rmag,sy*128*rmag+direction*32*rmag);
++				}
+ 			}
+ 			else
+ 			{
+@@ -869,7 +875,7 @@
+ /* Dump */
+ void rpgevent :: disassemble(char *filename)
+ {
+-	char buffer[MAX_PATH];
++	char buffer[260];
+ 	int i;
+ 	page *pg;
+ 	/* In end-user performance evaluation mode, they do not care about event dissaasembly */
+@@ -886,7 +892,7 @@
+ 	for(i = 0;i < page_count;i++)
+ 	{
+ 		/* Make filename */
+-		sprintf_s(buffer,sizeof(buffer),"%s.%d.txt",filename,i);
++		sprintf(buffer,"%s.%d.txt",filename,i);
+ 		/* Get page */
+ 		pg = (page*)wcarray_get(page_list,i);
+ 		/* Take it apart */
+Index: wchero.cpp
+===================================================================
+--- wchero.cpp	(revision 274)
++++ wchero.cpp	(working copy)
+@@ -13,6 +13,8 @@
+ #include "wcplayer.h"
+ #include "wcattribute.h"
+ 
++#include <string>
++
+ /* Globals */
+ table *hero_table;
+ arraylist heroes;
+Index: wcheroplate.cpp
+===================================================================
+--- wcheroplate.cpp	(revision 274)
++++ wcheroplate.cpp	(working copy)
+@@ -68,7 +68,7 @@
+ 	/* Second line */
+ 	wcheroplate_level_label->move(x+56,y-4+16);
+ 	wcheroplate_level_label->draw();
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_level());
++	sprintf(buffer,"%d",hr->get_level());
+ 	wcwindow_draw_text(x+56+16,y-4+16,0,buffer);
+ 	wcheroplate_normal->move(x+56+16+24,y-4+16);
+ 	wcheroplate_normal->draw();
+@@ -76,23 +76,23 @@
+ 	wcheroplate_health_label->move(x+56+16+24+48,y-4+16);
+ 	wcheroplate_health_label->draw();
+ 	wcwindow_draw_text(x+56+16+24+48+32,y-4+16,0,"/");
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_health());
++	sprintf(buffer,"%d",hr->get_health());
+ 	wcwindow_draw_text(x+56+16+24+48+12,y-4+16,0,buffer);
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_stat(STAT_HEALTH));
++	sprintf(buffer,"%d",hr->get_stat(STAT_HEALTH));
+ 	wcwindow_draw_text(x+56+16+24+48+8+32,y-4+16,0,buffer);
+ 	/* MP */
+ 	wcheroplate_mana_label->move(x+56+16+24+48,y-4+32);
+ 	wcheroplate_mana_label->draw();
+ 	wcwindow_draw_text(x+56+16+24+48+32,y-4+32,0,"/");
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_mana());
++	sprintf(buffer,"%d",hr->get_mana());
+ 	wcwindow_draw_text(x+56+16+24+48+12,y-4+32,0,buffer);
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_stat(STAT_MANA));
++	sprintf(buffer,"%d",hr->get_stat(STAT_MANA));
+ 	wcwindow_draw_text(x+56+16+24+48+8+32,y-4+32,0,buffer);
+ 	/* EXP */
+ 	wcwindow_draw_text(x+56+16+24,y-4+32,0,"/");
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_exp());
++	sprintf(buffer,"%d",hr->get_exp());
+ 	wcwindow_draw_text(x+56,y-4+32,0,buffer);
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_exp_for_next());
++	sprintf(buffer,"%d",hr->get_exp_for_next());
+ 	wcwindow_draw_text(x+56+16+24+8,y-4+32,0,buffer);
+ }
+ 
+Index: wcimage.cpp
+===================================================================
+--- wcimage.cpp	(revision 274)
++++ wcimage.cpp	(working copy)
+@@ -3,16 +3,21 @@
+ */
+ 
+ /* Includes */
+-#include <SDL.h>
+-#include <SDL_image.h>
+-#include <windows.h>
++//#include <SDL.h>
++//#include <SDL_image.h>
++//#include <windows.h>
+ #include <malloc.h>
+ #include <memory.h>
+ #include <stdio.h>
+ #include "wcrpg.h"
+ #include "wcimage.h"
+ #include "wclog.h"
++#include <android\log.h>
+ 
++#include <string.h>
++
++#include "../jniUtil.h"
++
+ /* Extend image */
+ void image :: extend(int nw,int nh)
+ {
+@@ -79,144 +84,148 @@
+ image :: ~image()
+ {
+ 	/* Release */
+-	free(data);
++	//free(data);
+ }
+ 
+ /* Create black */
+ image :: image(int w,int h)
+ {
+ 	/* Init these */
+-	init(w,h);
++	//init(w,h);
+ }
+ 
+ /* Create color */
+ image :: image(int w,int h,color c)
+ {
+-	int x,y;
+-	/* Init */
+-	init(w,h);
+-	/* Fill */
+-	for(y = 0;y < height;y++)
+-		for(x = 0;x < width;x++)
+-			data[x+y*width] = c;
++	//int x,y;
++	///* Init */
++	//init(w,h);
++	///* Fill */
++	//for(y = 0;y < height;y++)
++	//	for(x = 0;x < width;x++)
++	//		data[x+y*width] = c;
+ }
+ 
+ /* Create */
+ image :: image(char *filename)
+ {
+-	SDL_Surface *surface;
+-	SDL_Color *ckey;
+-	int x,y,rank8,rank32,pos;
+-	unsigned char *src8;
+-	unsigned long *src32;
+-	unsigned char *dest;
+-	/* Nullify */
+-	if(!filename)
+-	{
+-		wclog_write(wcrpg_get_log(),"Using blank stub image");
+-		wclog_enter(wcrpg_get_log());
+-		init(32,32);
+-		return;
+-	}
+-	/* Announce */
+-	wclog_write(wcrpg_get_log(),"Loading image: ");
+-	wclog_write(wcrpg_get_log(),filename);
+-	wclog_write(wcrpg_get_log(),"...");
+-	wclog_enter(wcrpg_get_log());
+-	/* Create the surface */
+-	surface = IMG_Load(filename);
+-	/* Error? */
+-	if(!surface)
+-	{
+-		wcrpg_error("Could not load image %s (%s)",filename,IMG_GetError());
+-		init(16,16);
+-		return;
+-	}
+-	/* Get info */
+-	init(surface->w,surface->h);
+-	/* Announce info */
+-	wclog_write(wcrpg_get_log(),vwidth);
+-	wclog_write(wcrpg_get_log(),"x");
+-	wclog_write(wcrpg_get_log(),vheight);
+-	wclog_write(wcrpg_get_log()," bpp: ");
+-	wclog_write(wcrpg_get_log(),surface->format->BitsPerPixel);
+-	wclog_enter(wcrpg_get_log());
+-	/* Lock surface */
+-	if(SDL_LockSurface(surface) == -1)
+-	{
+-		wcrpg_error("Could not lock image %s (%s)",filename,SDL_GetError());
+-		return;
+-	}
+-	rank8 = surface->pitch;
+-	rank32 = surface->pitch/4;
+-	dest = (unsigned char*)data;
+-	src8 = (unsigned char*)surface->pixels;
+-	src32 = (unsigned long*)surface->pixels;
+-	/* Copy pixels */
+-	for(y = 0;y < height;y++)
+-	{
+-		for(x = 0;x < width;x++)
+-		{
+-			/* Position */
+-			pos = x*sizeof(color)+(height-1-y)*width*sizeof(color);
+-			/* Color Indexed */
+-			if(surface->format->BitsPerPixel == 8)
+-			{
+-				/* Get first color of palette */
+-				ckey = &surface->format->palette->colors[0];
+-				/* 8-bit case */
+-				SDL_GetRGBA(src8[x+y*rank8],surface->format,&dest[pos+2],&dest[pos+1],&dest[pos],&dest[pos+3]);
+-				/* Matches color? */
+-				if(ckey->r == dest[pos+2] && ckey->g == dest[pos+1] && ckey->b == dest[pos])
+-					dest[pos+3] = 0x00; /* Blank it out in alpha map */
+-			}
+-			/* Full 32 Color */
+-			if(surface->format->BitsPerPixel == 32)
+-			{
+-				/* Direct copy */
+-				SDL_GetRGBA(src32[x+y*rank32],surface->format,&dest[pos+2],&dest[pos+1],&dest[pos],&dest[pos+3]);
+-			}
+-		}
+-	}
+-	/* Done, unlock */
+-	SDL_UnlockSurface(surface);
+-	/* Now release */
+-	SDL_FreeSurface(surface);
+-	/* Expand */
+-	expand();
++	texID=JNIUtil::jni_load_texture(filename);
++	width=JNIUtil::jni_getWidth();
++	height=JNIUtil::jni_getHeight();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "%s %d,%d ",filename, width,height);
++	//SDL_Surface *surface;
++	//SDL_Color *ckey;
++	//int x,y,rank8,rank32,pos;
++	//unsigned char *src8;
++	//unsigned long *src32;
++	//unsigned char *dest;
++	///* Nullify */
++	//if(!filename)
++	//{
++	//	wclog_write(wcrpg_get_log(),"Using blank stub image");
++	//	wclog_enter(wcrpg_get_log());
++	//	init(32,32);
++	//	return;
++	//}
++	///* Announce */
++	//wclog_write(wcrpg_get_log(),"Loading image: ");
++	//wclog_write(wcrpg_get_log(),filename);
++	//wclog_write(wcrpg_get_log(),"...");
++	//wclog_enter(wcrpg_get_log());
++	///* Create the surface */
++	//surface = IMG_Load(filename);
++	///* Error? */
++	//if(!surface)
++	//{
++	//	wcrpg_error("Could not load image %s (%s)",filename,IMG_GetError());
++	//	init(16,16);
++	//	return;
++	//}
++	///* Get info */
++	//init(surface->w,surface->h);
++	///* Announce info */
++	//wclog_write(wcrpg_get_log(),vwidth);
++	//wclog_write(wcrpg_get_log(),"x");
++	//wclog_write(wcrpg_get_log(),vheight);
++	//wclog_write(wcrpg_get_log()," bpp: ");
++	//wclog_write(wcrpg_get_log(),surface->format->BitsPerPixel);
++	//wclog_enter(wcrpg_get_log());
++	///* Lock surface */
++	//if(SDL_LockSurface(surface) == -1)
++	//{
++	//	wcrpg_error("Could not lock image %s (%s)",filename,SDL_GetError());
++	//	return;
++	//}
++	//rank8 = surface->pitch;
++	//rank32 = surface->pitch/4;
++	//dest = (unsigned char*)data;
++	//src8 = (unsigned char*)surface->pixels;
++	//src32 = (unsigned long*)surface->pixels;
++	///* Copy pixels */
++	//for(y = 0;y < height;y++)
++	//{
++	//	for(x = 0;x < width;x++)
++	//	{
++	//		/* Position */
++	//		pos = x*sizeof(color)+(height-1-y)*width*sizeof(color);
++	//		/* Color Indexed */
++	//		if(surface->format->BitsPerPixel == 8)
++	//		{
++	//			/* Get first color of palette */
++	//			ckey = &surface->format->palette->colors[0];
++	//			/* 8-bit case */
++	//			SDL_GetRGBA(src8[x+y*rank8],surface->format,&dest[pos+2],&dest[pos+1],&dest[pos],&dest[pos+3]);
++	//			/* Matches color? */
++	//			if(ckey->r == dest[pos+2] && ckey->g == dest[pos+1] && ckey->b == dest[pos])
++	//				dest[pos+3] = 0x00; /* Blank it out in alpha map */
++	//		}
++	//		/* Full 32 Color */
++	//		if(surface->format->BitsPerPixel == 32)
++	//		{
++	//			/* Direct copy */
++	//			SDL_GetRGBA(src32[x+y*rank32],surface->format,&dest[pos+2],&dest[pos+1],&dest[pos],&dest[pos+3]);
++	//		}
++	//	}
++	//}
++	///* Done, unlock */
++	//SDL_UnlockSurface(surface);
++	///* Now release */
++	//SDL_FreeSurface(surface);
++	///* Expand */
++	//expand();
+ }
+ 
+ /* Generate file in memory */
+ void *image :: generate_bmp()
+ {
+-	unsigned char *d;
+-	BITMAPFILEHEADER bfh;
+-	BITMAPINFOHEADER bih;
+-	/* Fill out file header */
+-	bfh.bfType = 0x4D42;
+-	bfh.bfSize = sizeof(color)*width*height;
+-	bfh.bfReserved1 = 0;
+-	bfh.bfReserved2 = 0;
+-	bfh.bfOffBits = sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER);
+-	/* Fill out info header */
+-	bih.biSize = sizeof(BITMAPINFOHEADER);
+-	bih.biWidth = width;
+-	bih.biHeight = height;
+-	bih.biPlanes = 1;
+-	bih.biBitCount = 32;
+-	bih.biCompression = BI_RGB;
+-	bih.biSizeImage = sizeof(color)*width*height;
+-	bih.biXPelsPerMeter = 4200;
+-	bih.biYPelsPerMeter = 4200;
+-	bih.biClrUsed = 0;
+-	bih.biClrImportant = 0;
+-	/* Allocate the container */
+-	d = (unsigned char*)malloc(sizeof(bfh)+sizeof(bih)+sizeof(color)*width*height);
+-	memcpy_s(d,sizeof(bfh),&bfh,sizeof(bfh));
+-	memcpy_s(&d[sizeof(bfh)],sizeof(bih),&bih,sizeof(bih));
+-	memcpy_s(&d[sizeof(bfh)+sizeof(bih)],sizeof(color)*width*height,data,sizeof(color)*width*height);
+-	/* Return it */
+-	return d;
++	//unsigned char *d;
++	//BITMAPFILEHEADER bfh;
++	//BITMAPINFOHEADER bih;
++	///* Fill out file header */
++	//bfh.bfType = 0x4D42;
++	//bfh.bfSize = sizeof(color)*width*height;
++	//bfh.bfReserved1 = 0;
++	//bfh.bfReserved2 = 0;
++	//bfh.bfOffBits = sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER);
++	///* Fill out info header */
++	//bih.biSize = sizeof(BITMAPINFOHEADER);
++	//bih.biWidth = width;
++	//bih.biHeight = height;
++	//bih.biPlanes = 1;
++	//bih.biBitCount = 32;
++	//bih.biCompression = BI_RGB;
++	//bih.biSizeImage = sizeof(color)*width*height;
++	//bih.biXPelsPerMeter = 4200;
++	//bih.biYPelsPerMeter = 4200;
++	//bih.biClrUsed = 0;
++	//bih.biClrImportant = 0;
++	///* Allocate the container */
++	//d = (unsigned char*)malloc(sizeof(bfh)+sizeof(bih)+sizeof(color)*width*height);
++	//memcpy_s(d,sizeof(bfh),&bfh,sizeof(bfh));
++	//memcpy_s(&d[sizeof(bfh)],sizeof(bih),&bih,sizeof(bih));
++	//memcpy_s(&d[sizeof(bfh)+sizeof(bih)],sizeof(color)*width*height,data,sizeof(color)*width*height);
++	///* Return it */
++	//return d;
+ }
+ 
+ /* Save file */
+@@ -232,16 +241,16 @@
+ 	/* Generate */
+ 	v = generate_bmp();
+ 	/* Open */
+-	fopen_s(&f,filename,"wb");
++	//fopen(filename,"wb");
+ 	if(!f)
+ 	{
+ 		wcrpg_error("Could not save .BMP %s",filename);
+ 		return;
+ 	}
+ 	/* Write out */
+-	fwrite(v,1,size_of_bmp(),f);
++	//fwrite(v,1,size_of_bmp(),f);
+ 	/* End */
+-	fclose(f);
++	//(f);
+ 	/* Release */
+ 	free(v);
+ }
+@@ -249,7 +258,7 @@
+ /* Size of bmp */
+ int image :: size_of_bmp()
+ {
+-	return sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER)+sizeof(color)*width*height;
++	//return sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER)+sizeof(color)*width*height;
+ }
+ 
+ /* Width */
+@@ -310,39 +319,39 @@
+ /* Get */
+ color image :: get(int x,int y)
+ {
+-	color nullcol;
+-	/* Prepare null color */
+-	nullcol.a = 0;
+-	nullcol.b = 0;
+-	nullcol.g = 0;
+-	nullcol.r = 0;
+-	if(!data)
+-	{
+-		wcrpg_error("Can't get a pixel from a reduced image");
+-		return nullcol;
+-	}
+-	/* Check */
+-	if(x < 0 || x >= width)
+-		return nullcol;
+-	if(y < 0 || y >= height)
+-		return nullcol;
+-	/* Get */
+-	return data[x+(height-1-y)*width];
++	//color nullcol;
++	///* Prepare null color */
++	//nullcol.a = 0;
++	//nullcol.b = 0;
++	//nullcol.g = 0;
++	//nullcol.r = 0;
++	//if(!data)
++	//{
++	//	wcrpg_error("Can't get a pixel from a reduced image");
++	//	return nullcol;
++	//}
++	///* Check */
++	//if(x < 0 || x >= width)
++	//	return nullcol;
++	//if(y < 0 || y >= height)
++	//	return nullcol;
++	///* Get */
++	//return data[x+(height-1-y)*width];
+ }
+ 
+ /* Blit */
+ void image :: blit(image *src,int sx,int sy,int w,int h,int dx,int dy)
+ {
+-	int x,y;
+-	if(!data)
+-	{
+-		wcrpg_error("Can't perform a blit with a reduced image");
+-		return;
+-	}
+-	/* Copy pixels */
+-	for(y = 0;y < h;y++)
+-		for(x = 0;x < w;x++)
+-			set(dx+x,dy+y,src->get(sx+x,sy+y));
++	//int x,y;
++	//if(!data)
++	//{
++	//	wcrpg_error("Can't perform a blit with a reduced image");
++	//	return;
++	//}
++	///* Copy pixels */
++	//for(y = 0;y < h;y++)
++	//	for(x = 0;x < w;x++)
++	//		set(dx+x,dy+y,src->get(sx+x,sy+y));
+ }
+ 
+ /* Tile */
+@@ -362,53 +371,53 @@
+ /* Multiply */
+ void image :: multiply(image *src)
+ {
+-	int x,y;
+-	color s,d;
+-	float sa,sr,sg,sb;
+-	float da,dr,dg,db;
+-	if(!data)
+-	{
+-		wcrpg_error("Can't multiply a reduced image");
+-		return;
+-	}
+-	/* Multiply together */
+-	for(y = 0;y < height;y++)
+-	{
+-		for(x = 0;x < width;x++)
+-		{
+-			/* Get data */
+-			s = src->get(x,y);
+-			d = get(x,y);
+-			/* To sample space */
+-			sa = (float)s.a/255.0f;
+-			sb = (float)s.b/255.0f;
+-			sg = (float)s.g/255.0f;
+-			sr = (float)s.r/255.0f;
+-			da = (float)d.a/255.0f;
+-			db = (float)d.b/255.0f;
+-			dg = (float)d.g/255.0f;
+-			dr = (float)d.r/255.0f;
+-			/* Multiply */
+-			da = sa*da;
+-			dr = sr*dr;
+-			dg = sg*dg;
+-			db = sb*db;
+-			/* Return to the original */
+-			d.a = (int)(da*255);
+-			d.g = (int)(dg*255);
+-			d.b = (int)(db*255);
+-			d.r = (int)(dr*255);
+-			/* Put back */
+-			set(x,y,d);
+-		}
+-	}
++	//int x,y;
++	//color s,d;
++	//float sa,sr,sg,sb;
++	//float da,dr,dg,db;
++	//if(!data)
++	//{
++	//	wcrpg_error("Can't multiply a reduced image");
++	//	return;
++	//}
++	///* Multiply together */
++	//for(y = 0;y < height;y++)
++	//{
++	//	for(x = 0;x < width;x++)
++	//	{
++	//		/* Get data */
++	//		s = src->get(x,y);
++	//		d = get(x,y);
++	//		/* To sample space */
++	//		sa = (float)s.a/255.0f;
++	//		sb = (float)s.b/255.0f;
++	//		sg = (float)s.g/255.0f;
++	//		sr = (float)s.r/255.0f;
++	//		da = (float)d.a/255.0f;
++	//		db = (float)d.b/255.0f;
++	//		dg = (float)d.g/255.0f;
++	//		dr = (float)d.r/255.0f;
++	//		/* Multiply */
++	//		da = sa*da;
++	//		dr = sr*dr;
++	//		dg = sg*dg;
++	//		db = sb*db;
++	//		/* Return to the original */
++	//		d.a = (int)(da*255);
++	//		d.g = (int)(dg*255);
++	//		d.b = (int)(db*255);
++	//		d.r = (int)(dr*255);
++	//		/* Put back */
++	//		set(x,y,d);
++	//	}
++	//}
+ }
+ 
+ /* Release memory */
+ void image :: reduce()
+ {
+-	free(data);
+-	data = 0;
++	//free(data);
++	//data = 0;
+ }
+ 
+ /* Flip horizontal */
+Index: wcimage.h
+===================================================================
+--- wcimage.h	(revision 274)
++++ wcimage.h	(working copy)
+@@ -17,6 +17,7 @@
+ 	int width,height; /* Dimensions of the image */
+ 	int vwidth,vheight; /* Dimensions of the VISIBLE image, not the power of two excess */
+ 	color *data; /* Actual image data */
++
+ 	/*
+ 		Initializes an image
+ 	*/
+@@ -26,6 +27,8 @@
+ 	*/
+ 	void expand();
+ public:
++
++	int texID;
+ 	/*
+ 		Creates a new image from file
+ 	*/
+Index: wcini.cpp
+===================================================================
+--- wcini.cpp	(revision 274)
++++ wcini.cpp	(working copy)
+@@ -3,7 +3,7 @@
+ */
+ 
+ /* Includes */
+-#include <windows.h>
++//#include <windows.h>
+ #include <stdio.h>
+ #include <string.h>
+ #include <malloc.h>
+@@ -11,20 +11,26 @@
+ #include "wcini.h"
+ #include "wcrpg.h"
+ 
++#include <android\log.h>
++
++#include "../jniUtil.h"
++
+ /* Counts the lines in a file */
+ int wcini_line_count(char *file)
+ {
+-	char buffer[MAX_PATH];
++	char buffer[260];
+ 	FILE *f;
+ 	int l;
+ 	/* Open */
+-	fopen_s(&f,file,"r");
++	f=fopen(file,"r");
+ 	if(!f)
+ 		return -1; /* Error */
+ 	/* Count lines */
+ 	l = 0;
+-	while(fgets(buffer,sizeof(buffer),f))
++	while(fgets(buffer,sizeof(buffer),f)){
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcini_line_count %s",buffer);
+ 		l++;
++	}
+ 	fclose(f);
+ 	/* Return that count */
+ 	return l;
+@@ -108,25 +114,33 @@
+ /* Create new */
+ ini :: ini(char *file)
+ {
+-	char buffer[MAX_PATH];
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "ini[1]");
++	char buffer[260];
+ 	FILE *f;
+ 	int i;
+ 	/* Source */
+ 	source = file;
+ 	/* Count them lines */
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "ini[2]");
+ 	lines = wcini_line_count(file);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "ini[3] %d",lines);
+ 	if(lines == -1)
+ 	{
+ 		wcrpg_error("Could not open %s",file);
+ 		return;
+ 	}
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "ini[4]");
+ 	/* Prepare list */
+ 	data = wcarray_new();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "ini[5]");
+ 	wcarray_set_clean(data,free);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "ini[6] %s",file);
+ 	/* Read */
+-	fopen_s(&f,file,"r");
++	f=fopen(file,"r");
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "ini[7]");
+ 	while(fgets(buffer,sizeof(buffer),f))
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "ini[8]");
+ 		wcini_remove_chars('\n',buffer);
+ 		wcarray_add(data,wcrpg_string_clone(buffer));
+ 	}
+Index: wcinput.cpp
+===================================================================
+--- wcinput.cpp	(revision 274)
++++ wcinput.cpp	(working copy)
+@@ -3,18 +3,24 @@
+ */
+ 
+ /* Includes */
+-#include <SDL.h>
++//#include <SDL.h>
+ #include "wcinput.h"
+ 
+-/* Globals */
+-Uint8 *wcinput_keys;
+-int wcinput_lock_enable = 0;
++///* Globals */
++//Uint8 *wcinput_keys;
++//int wcinput_lock_enable = 0;
+ 
++#include <android\log.h>
++
++int key=0;
++
+ /* Gathers input for a frame */
+-void wcinput_handle()
++void wcinput_handle(int key_)
+ {
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "%d",key_);
++	key=key_;
+ 	/* Get the state */
+-	wcinput_keys = SDL_GetKeyState(0);
++	//wcinput_keys = SDL_GetKeyState(0);
+ }
+ 
+ /* Returns the input code if it is active */
+@@ -22,149 +28,136 @@
+ {
+ 	switch(code)
+ 	{
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "%d",code);
+ 	/* Moving keys */
+ 	case WCINPUT_DOWN:
+-		if(wcinput_keys[SDLK_DOWN])
++		if(key & 1<<1)
+ 			return 1;
+ 		return 0;
+ 	case WCINPUT_LEFT:
+-		if(wcinput_keys[SDLK_LEFT])
++		if(key & 1<<0)
+ 			return 1;
+ 		return 0;
+ 	case WCINPUT_RIGHT:
+-		if(wcinput_keys[SDLK_RIGHT])
++		if(key & 1<<2)
+ 			return 1;
+ 		return 0;
+ 	case WCINPUT_UP:
+-		if(wcinput_keys[SDLK_UP])
++		if(key & 1<<3)
+ 			return 1;
+ 		return 0;
+ 	/* Main keys */
+ 	case WCINPUT_OK:
+-		if(wcinput_keys[SDLK_z])
++		if(key & 1<<4)
+ 			return 1;
+-		if(wcinput_keys[SDLK_RETURN])
+-			return 1;
+-		if(wcinput_keys[SDLK_SPACE])
+-			return 1;
+ 		return 0;
+ 	case WCINPUT_CANCEL:
+-		if(wcinput_keys[SDLK_x])
+-			return 1;
+-		if(wcinput_keys[SDLK_c])
+-			return 1;
+-		if(wcinput_keys[SDLK_v])
+-			return 1;
+-		if(wcinput_keys[SDLK_b])
+-			return 1;
+-		if(wcinput_keys[SDLK_n])
+-			return 1;
+ 		return 0;
+ 	case WCINPUT_SHIFT:
+-		if(wcinput_keys[SDLK_RSHIFT])
+-			return 1;
+-		if(wcinput_keys[SDLK_LSHIFT])
+-			return 1;
++		//if(wcinput_keys[SDLK_RSHIFT])
++		//	return 1;
++		//if(wcinput_keys[SDLK_LSHIFT])
++		//	return 1;
+ 		return 0;
+ 	/* Numbers */
+ 	case WCINPUT_0:
+-		if(wcinput_keys[SDLK_0])
+-			return 1;
++		/*if(wcinput_keys[SDLK_0])
++			return 1;*/
+ 		return 0;
+ 	case WCINPUT_1:
+-		if(wcinput_keys[SDLK_1])
+-			return 1;
++		/*if(wcinput_keys[SDLK_1])
++			return 1;*/
+ 		return 0;
+ 	case WCINPUT_2:
+-		if(wcinput_keys[SDLK_2])
+-			return 1;
++		/*if(wcinput_keys[SDLK_2])
++			return 1;*/
+ 		return 0;
+ 	case WCINPUT_3:
+-		if(wcinput_keys[SDLK_3])
+-			return 1;
++		//if(wcinput_keys[SDLK_3])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_4:
+-		if(wcinput_keys[SDLK_4])
+-			return 1;
++		//if(wcinput_keys[SDLK_4])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_5:
+-		if(wcinput_keys[SDLK_5])
+-			return 1;
++		//if(wcinput_keys[SDLK_5])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_6:
+-		if(wcinput_keys[SDLK_6])
+-			return 1;
++		//if(wcinput_keys[SDLK_6])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_7:
+-		if(wcinput_keys[SDLK_7])
+-			return 1;
++		//if(wcinput_keys[SDLK_7])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_8:
+-		if(wcinput_keys[SDLK_8])
+-			return 1;
++		//if(wcinput_keys[SDLK_8])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_9:
+-		if(wcinput_keys[SDLK_9])
+-			return 1;
++		//if(wcinput_keys[SDLK_9])
++		//	return 1;
+ 		return 0;
+ 	/* Ops */
+ 	case WCINPUT_PLUS:
+-		if(wcinput_keys[SDLK_PLUS])
+-			return 1;
++		//if(wcinput_keys[SDLK_PLUS])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_MINUS:
+-		if(wcinput_keys[SDLK_MINUS])
+-			return 1;
++		//if(wcinput_keys[SDLK_MINUS])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_MULTIPLY:
+-		if(wcinput_keys[SDLK_ASTERISK])
+-			return 1;
++		//if(wcinput_keys[SDLK_ASTERISK])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_DIVIDE:
+-		if(wcinput_keys[SDLK_SLASH])
+-			return 1;
++		//if(wcinput_keys[SDLK_SLASH])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_PERIOD:
+-		if(wcinput_keys[SDLK_PERIOD])
+-			return 1;
++		//if(wcinput_keys[SDLK_PERIOD])
++		//	return 1;
+ 		return 0;
+ 	/* Scrollin keys */
+ 	case WCINPUT_PAGE_DOWN:
+-		if(wcinput_keys[SDLK_PAGEDOWN])
+-			return 1;
++		//if(wcinput_keys[SDLK_PAGEDOWN])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_PAGE_UP:
+-		if(wcinput_keys[SDLK_PAGEUP])
+-			return 1;
++		//if(wcinput_keys[SDLK_PAGEUP])
++		//	return 1;
+ 		return 0;
+ 	/* Debug keys */
+ 	case WCINPUT_DEBUG_SAVE:
+-		if(wcinput_keys[SDLK_F5])
+-			return 1;
++		//if(wcinput_keys[SDLK_F5])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_DEBUG_SCREENSHOT:
+-		if(wcinput_keys[SDLK_F6])
+-			return 1;
++		//if(wcinput_keys[SDLK_F6])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_DEBUG_FOLDER:
+-		if(wcinput_keys[SDLK_F7])
+-			return 1;
++		//if(wcinput_keys[SDLK_F7])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_DEBUG_PLAY:
+-		if(wcinput_keys[SDLK_F9])
+-			return 1;
++		//if(wcinput_keys[SDLK_F9])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_DEBUG_SLOW:
+-		if(wcinput_keys[SDLK_F10])
+-			return 1;
++		//if(wcinput_keys[SDLK_F10])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_DEBUG_FAST:
+-		if(wcinput_keys[SDLK_F11])
+-			return 1;
++		//if(wcinput_keys[SDLK_F11])
++		//	return 1;
+ 		return 0;
+ 	case WCINPUT_DEBUG_INFO:
+-		if(wcinput_keys[SDLK_F12])
+-			return 1;
++		//if(wcinput_keys[SDLK_F12])
++		//	return 1;
+ 		return 0;
+ 	}
+ 	/* Nothing pressed */
+@@ -218,26 +211,26 @@
+ /* Returns the key made for map testing when on title screen */
+ int wcinput_map_test()
+ {
+-	if(wcinput_key(WCINPUT_1))
+-		return 1;
++	//if(wcinput_key(WCINPUT_1))
++	//	return 1;
+ 	return 0;
+ }
+ 
+ /* Returns the key made for sound testing when on title screen */
+ int wcinput_sound_test()
+ {
+-	if(wcinput_key(WCINPUT_2))
+-		return 1;
++	//if(wcinput_key(WCINPUT_2))
++	//	return 1;
+ 	return 0;
+ }
+ 
+ /* Returns fast scrolling direction */
+ int wcinput_scroll_y()
+ {
+-	if(wcinput_key(WCINPUT_PAGE_DOWN))
+-		return 1;
+-	if(wcinput_key(WCINPUT_PAGE_UP))
+-		return -1;
++	//if(wcinput_key(WCINPUT_PAGE_DOWN))
++	//	return 1;
++	//if(wcinput_key(WCINPUT_PAGE_UP))
++	//	return -1;
+ 	return 0;
+ }
+ 
+Index: wcinvoke.cpp
+===================================================================
+--- wcinvoke.cpp	(revision 274)
++++ wcinvoke.cpp	(working copy)
+@@ -3,7 +3,7 @@
+ */
+ 
+ /* Includes */
+-#include <windows.h>
++//#include <windows.h>
+ #include <memory.h>
+ #include <stdlib.h>
+ #include "wcinvoke.h"
+@@ -13,51 +13,51 @@
+ /* Invokes the program or command with command line params */
+ void wcinvoke(char *prog,char *cmd)
+ {
+-	STARTUPINFOA si;
+-	PROCESS_INFORMATION pi;
+-	/* Zero set */
+-	memset(&si,0,sizeof(si));
+-	memset(&pi,0,sizeof(pi));
+-	/* Sizeof */
+-	si.cb = sizeof(si);
+-	/* Invoke */
+-	if(!CreateProcessA(prog,cmd,NULL,NULL,0,0,NULL,NULL,&si,&pi))
+-		wcrpg_error("Could not invoke %s with %s",prog,cmd);
++	//STARTUPINFOA si;
++	//PROCESS_INFORMATION pi;
++	///* Zero set */
++	//memset(&si,0,sizeof(si));
++	//memset(&pi,0,sizeof(pi));
++	///* Sizeof */
++	//si.cb = sizeof(si);
++	///* Invoke */
++	//if(!CreateProcessA(prog,cmd,NULL,NULL,0,0,NULL,NULL,&si,&pi))
++	//	wcrpg_error("Could not invoke %s with %s",prog,cmd);
+ }
+ 
+ /* Invokes the game save folder which pops open a file browser window set in the game saves */
+ void wcinvoke_game_save_folder()
+ {
+-	int i;
+-	char buffer[MAX_PATH];
+-	char windir[MAX_PATH];
+-	char exdir[MAX_PATH];
+-	char commd[MAX_PATH];
+-	/* Get windows dir */
+-	memset(windir,0,sizeof(windir));
+-	GetEnvironmentVariableA("WINDIR",windir,sizeof(windir));
+-	/* Get explorer dir */
+-	memset(exdir,0,sizeof(exdir));
+-	sprintf_s(exdir,sizeof(exdir),"%s\\explorer.exe",windir);
+-	/* Open explorer with root set to game saves */
+-	memset(buffer,0,sizeof(buffer));
+-	sprintf_s(buffer,sizeof(buffer),"/root,%s",wcsave_get_game_base());
+-	/* Ugh, it only likes \ */
+-	for(i = 0;i < MAX_PATH;i++)
+-	{
+-		if(buffer[i] == '/')
+-			buffer[i] = '\\';
+-	}
+-	buffer[0] = '/';
+-	buffer[(int)strlen(buffer)-1] = 0;
+-	/* Log */
+-	wclog_write(wcrpg_get_log(),"Opened game save directory: ");
+-	wclog_write(wcrpg_get_log(),exdir);
+-	wclog_write(wcrpg_get_log()," ");
+-	wclog_write(wcrpg_get_log(),buffer);
+-	wclog_enter(wcrpg_get_log());
+-	/* Open */
+-	memset(commd,0,sizeof(commd));
+-	sprintf_s(commd,sizeof(commd),"%s %s",exdir,buffer);
+-	wcinvoke(NULL,commd);
++	//int i;
++	//char buffer[260];
++	//char windir[260];
++	//char exdir[260];
++	//char commd[260];
++	///* Get windows dir */
++	//memset(windir,0,sizeof(windir));
++	//GetEnvironmentVariableA("WINDIR",windir,sizeof(windir));
++	///* Get explorer dir */
++	//memset(exdir,0,sizeof(exdir));
++	//sprintf_s(exdir,sizeof(exdir),"%s\\explorer.exe",windir);
++	///* Open explorer with root set to game saves */
++	//memset(buffer,0,sizeof(buffer));
++	//sprintf_s(buffer,sizeof(buffer),"/root,%s",wcsave_get_game_base());
++	///* Ugh, it only likes \ */
++	//for(i = 0;i < 260;i++)
++	//{
++	//	if(buffer[i] == '/')
++	//		buffer[i] = '\\';
++	//}
++	//buffer[0] = '/';
++	//buffer[(int)strlen(buffer)-1] = 0;
++	///* Log */
++	//wclog_write(wcrpg_get_log(),"Opened game save directory: ");
++	//wclog_write(wcrpg_get_log(),exdir);
++	//wclog_write(wcrpg_get_log()," ");
++	//wclog_write(wcrpg_get_log(),buffer);
++	//wclog_enter(wcrpg_get_log());
++	///* Open */
++	//memset(commd,0,sizeof(commd));
++	//sprintf_s(commd,sizeof(commd),"%s %s",exdir,buffer);
++	//wcinvoke(NULL,commd);
+ }
+\ No newline at end of file
+Index: wcitem.cpp
+===================================================================
+--- wcitem.cpp	(revision 274)
++++ wcitem.cpp	(working copy)
+@@ -15,6 +15,8 @@
+ #include "wcparty.h"
+ #include "wchero.h"
+ 
++#include <string>
++
+ /* Globals */
+ table *item_table;
+ arraylist items;
+Index: wclevel.cpp
+===================================================================
+--- wclevel.cpp	(revision 274)
++++ wclevel.cpp	(working copy)
+@@ -16,6 +16,10 @@
+ #include "wctileset.h"
+ #include "wcsaveio.h"
+ 
++#include <android\log.h>
++
++#include <string>
++
+ /* Globals */
+ float wclevel_camera_x = 0;
+ float wclevel_camera_y = 0;
+@@ -27,7 +31,7 @@
+ float wclevel_camera_force_x = 0;
+ float wclevel_camera_force_y = 0;
+ map *wclevel_map = 0;
+-int wclevel_id;
++int wclevel_id = 0;
+ int camera_lock = 0;
+ 
+ /* Locks up the camera */
+@@ -101,6 +105,7 @@
+ void *wclevel_get_event(int id)
+ {
+ 	int i;
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wclevel_get_event");
+ 	rpgevent *ev;
+ 	if(!wclevel_map)
+ 		return 0;
+@@ -117,6 +122,7 @@
+ /* Loads the starting level */
+ void wclevel_load_start()
+ {
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wclevel_load_start");
+ 	int id,x,y;
+ 	id = wcmaptree_get_start_id(START_HERO);
+ 	if(id == -1)
+@@ -194,6 +200,8 @@
+ /* Frees levels */
+ void wclevel_free()
+ {
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wclevel_free");
++	wclevel_id=0;
+ 	/* Release map */
+ 	if(wclevel_map)
+ 		delete wclevel_map;
+@@ -238,6 +246,7 @@
+ 	if(wclevel_map)
+ 		wclevel_map->handle();
+ 	/* Handle events */
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wclevel_handle");
+ 	for(i = 0;i < wclevel_map->get_event_count();i++)
+ 		((rpgevent*)wclevel_map->get_event(i))->handle();
+ 	/* Handle bridge */
+@@ -282,6 +291,7 @@
+ 		/* Wrap */
+ 		wclevel_map->wrap(&x,&y);
+ 		/* From lowest ID to highest ID, this is important */
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wclevel_examine");
+ 		for(i = 0;i < wclevel_map->get_event_count();i++)
+ 		{
+ 			/* Get event */
+@@ -305,6 +315,7 @@
+ 		/* Wrap */
+ 		wclevel_map->wrap(&x,&y);
+ 		/* From lowest ID to highest ID, this is important */
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wclevel_step");
+ 		for(i = 0;i < wclevel_map->get_event_count();i++)
+ 		{
+ 			/* Get event */
+@@ -420,6 +431,7 @@
+ 	rpgevent *ev;
+ 	if(wclevel_map)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wclevel_update_all_event_terrain");
+ 		for(i = 0;i < wclevel_map->get_event_count();i++)
+ 		{
+ 			ev = (rpgevent*)wclevel_map->get_event(i);
+@@ -444,6 +456,7 @@
+ 	int i;
+ 	/* Save count */
+ 	wcsaveio_start(f);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wclevel_save_state");
+ 	wcsaveio_write_num(wclevel_map->get_event_count());
+ 	wcsaveio_end();
+ 	/* Save all states */
+@@ -460,6 +473,7 @@
+ 	len = wcsaveio_read_num();
+ 	wcsaveio_next();
+ 	/* Read all state */
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wclevel_load_state");
+ 	for(i = 0;i < len;i++)
+ 	{
+ 		if(i >= wclevel_map->get_event_count())
+Index: wclog.cpp
+===================================================================
+--- wclog.cpp	(revision 274)
++++ wclog.cpp	(working copy)
+@@ -3,50 +3,92 @@
+ */
+ 
+ /* Includes */
+-#include <windows.h>
++//#include <windows.h>
+ #include <stdio.h>
+ #include "wclog.h"
+ 
++#include <android\log.h>
++
++#include <unistd.h>
++#include <sys/stat.h>
++#include <fcntl.h>
++
+ #ifndef NDEBUG
+ 
++
++char* name_="";
++
+ /* Create new */
+ elog wclog_open(char *name)
+ {
+-	char buffer[MAX_PATH];
+-	FILE *logf;
+-	sprintf_s(buffer,sizeof(buffer),"%s.txt",name);
+-	fopen_s(&logf,buffer,"w");
+-	return (elog)logf;
++	return 0;
++	
++	char buffer[260];
++	//FILE *logf;
++	sprintf(buffer,"/data/data/br.gjteam.jni/files/%s.txt",name);
++	//logf=fopen(buffer,"w");
++	//if(logf==NULL){
++	//	__android_log_print(ANDROID_LOG_INFO, "adMOB", "fuuu");
++	//}
++
++	name_=buffer;
++	return (elog)0;
+ }
+ 
+ /* Close */
+ void wclog_close(elog l)
+ {
+-	fclose((FILE*)l);
++	return;
++	//fclose((FILE*)l);
++	//close((int)l); 
+ }
+ 
+ /* Writes a string to a log */
+ void wclog_write(elog l,char *str)
+ {
+-	if(str)
+-		fprintf((FILE*)l,str);
+-	else
+-		fprintf((FILE*)l,"<NULL>");
+-	fflush((FILE*)l);
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wclog_write %s",str);
++	return;
++
++	int fd1 = open(name_, O_RDWR | O_CREAT ); 
++	if(fd1>=0) 
++	{ 
++		lseek(fd1,0,SEEK_END); 
++		write(fd1,str,strlen(str)); 
++		close(fd1); 
++		
++	}
++
++	//if(str)
++	//	fprintf((FILE*)l,str);
++	//else
++	//	fprintf((FILE*)l,"<NULL>");
++
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wclog_write[2]");
++	//fflush((FILE*)l);
+ }
+ 
+ /* Returns inside a log */
+ void wclog_enter(elog l)
+ {
+-	fprintf((FILE*)l,"\n");
+-	fflush((FILE*)l);
++	return;
++	//fprintf((FILE*)l,"\n");
++	//fflush((FILE*)l);
++
++	int fd1 = open(name_, O_RDWR | O_CREAT ); 
++	if(fd1>=0) 
++	{ 
++		lseek(fd1,0,SEEK_END); 
++		write(fd1,"\n",strlen("\n")); 
++		close(fd1);
++	}
+ }
+ 
+ /* Writes a number to a log */
+ void wclog_write(elog l,int n)
+ {
+-	fprintf((FILE*)l,"%d",n);
+-	fflush((FILE*)l);
++	return;
++	//fprintf((FILE*)l,"%d",n);
++	//fflush((FILE*)l);
+ }
+ 
+ #endif
+Index: wcmanage.cpp
+===================================================================
+--- wcmanage.cpp	(revision 274)
++++ wcmanage.cpp	(working copy)
+@@ -22,6 +22,8 @@
+ #include "wcsaveio.h"
+ #include "wcplayer.h"
+ 
++#include <string>
++
+ /* Globals */
+ menu *manage_menu;
+ int manage_remap[8];
+@@ -119,7 +121,7 @@
+ 	/* Money */
+ 	if(manage_money_text)
+ 		delete manage_money_text;
+-	sprintf_s(buffer,sizeof(buffer),"%s %d",wcvocab_get(95),wcmisc_get_money());
++	sprintf(buffer,"%s %d",wcvocab_get(95),wcmisc_get_money());
+ 	manage_money_text = new text(buffer);
+ }
+ 
+Index: wcmap.cpp
+===================================================================
+--- wcmap.cpp	(revision 274)
++++ wcmap.cpp	(working copy)
+@@ -3,7 +3,7 @@
+ */
+ 
+ /* Includes */
+-#include <windows.h>
++//#include <windows.h>
+ #include <stdio.h>
+ #include <malloc.h>
+ #include "wcmap.h"
+@@ -15,6 +15,8 @@
+ #include "wcmaterial.h"
+ #include "wctileset.h"
+ 
++#include "../jniUtil.h"
++
+ /* Globals */
+ float wcmap_ocean_step = 0;
+ float wcmap_anim_step = 0;
+@@ -59,7 +61,7 @@
+ /* Load events */
+ void map :: load_events(FILE *f)
+ {
+-	char buffer[MAX_PATH];
++	char buffer[260];
+ 	rpgevent *ev;
+ 	int code,rlen,len,i;
+ 	/* Load code */
+@@ -81,10 +83,11 @@
+ 	wclog_write(wcrpg_get_log()," events");
+ 	wclog_enter(wcrpg_get_log());
+ 	/* Read events */
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "event_count [%d] ",event_count);
+ 	for(i = 0;i < event_count;i++)
+ 	{
+ 		ev = new rpgevent(f);
+-		sprintf_s(buffer,sizeof(buffer),"Logs/%s",ev->get_name());
++		sprintf(buffer,"Logs/%s",ev->get_name());
+ 		ev->disassemble(buffer);
+ 		ev->report(wcrpg_get_log());
+ 		wcarray_add(event_list,ev);
+@@ -94,8 +97,9 @@
+ /* Load map */
+ map :: map(int id)
+ {
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "load map %d", id);
+ 	FILE *f;
+-	char buffer[MAX_PATH];
++	char buffer[260];
+ 	char *filetype;
+ 	int code,len,rlen;
+ 	/* Allocate */
+@@ -118,14 +122,14 @@
+ 	width = 20;
+ 	height = 15;
+ 	/* Get file name */
+-	sprintf_s(buffer,sizeof(buffer),"%sMap%04d.lmu",wcrpg_get_root(),id);
++	sprintf(buffer,"%sMap%04d.lmu","/sdcard/wcr2kxx/assets/",id);
+ 	/* Announce operation */
+ 	wclog_write(wcrpg_get_log(),"Loading map ");
+ 	wclog_write(wcrpg_get_log(),buffer);
+ 	wclog_write(wcrpg_get_log(),"...");
+ 	wclog_enter(wcrpg_get_log());
+ 	/* Open a channel */
+-	fopen_s(&f,buffer,"rb");
++	f=fopen(buffer,"rb");
+ 	/* Error */
+ 	if(!f)
+ 	{
+@@ -184,6 +188,7 @@
+ /* Delete map */
+ map :: ~map()
+ {
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "delete map");
+ 	int i;
+ 	free(parallax);
+ 	free(current_parallax);
+@@ -536,7 +541,7 @@
+ }
+ int map :: get_height()
+ {
+-	return height*16;
++	return height*16; 
+ }
+ 
+ /* Get sizes in tiles */
+@@ -699,6 +704,7 @@
+ /* Get event count */
+ int map :: get_event_count()
+ {
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "get_event_count");
+ 	return wcarray_size(event_list);
+ }
+ 
+Index: wcmaptree.cpp
+===================================================================
+--- wcmaptree.cpp	(revision 274)
++++ wcmaptree.cpp	(working copy)
+@@ -3,7 +3,7 @@
+ */
+ 
+ /* Includes */
+-#include <windows.h>
++//#include <windows.h>
+ #include <malloc.h>
+ #include "wcrpg.h"
+ #include "wctype.h"
+@@ -11,6 +11,8 @@
+ #include "wclog.h"
+ #include "wcarray.h"
+ 
++#include "../jniUtil.h"
++
+ /* Globals */
+ int wcmaptree_count = 0;
+ arraylist wcmaptree_list;
+@@ -44,7 +46,7 @@
+ /* Loads tree */
+ void wcmaptree_load()
+ {
+-	char buffer[MAX_PATH];
++	char buffer[260];
+ 	FILE *f;
+ 	char *filetype;
+ 	int rlen,i,code,val,len;
+@@ -52,8 +54,8 @@
+ 	/* Alloc */
+ 	wcmaptree_list = wcarray_new();
+ 	/* Open file */
+-	sprintf_s(buffer,sizeof(buffer),"%sRPG_RT.lmt",wcrpg_get_root());
+-	fopen_s(&f,buffer,"rb");
++	sprintf(buffer,"%sRPG_RT.lmt","/sdcard/wcr2kxx/assets/");
++	f=fopen(buffer,"rb");
+ 	filetype = wcstr_read_file(f,&rlen);
+ 	wclog_write(wcrpg_get_log(),"Loading map tree (");
+ 	wclog_write(wcrpg_get_log(),filetype);
+Index: wcmaterial.cpp
+===================================================================
+--- wcmaterial.cpp	(revision 274)
++++ wcmaterial.cpp	(working copy)
+@@ -45,14 +45,14 @@
+ 	wclog_write(wcrpg_get_log(),"Indexing resources...");
+ 	wclog_enter(wcrpg_get_log());
+ 	/* Load fallbacks */
+-	wcres_register_rtp();
++	//wcres_register_rtp();
+ 	/* Load all */
+ 	for(i = 0;i < MATERIAL_FOLDER_COUNT;i++)
+ 	{
+ 		/* Index */
+ 		res[i] = new reslist(wcmaterial_folder_name(i));
+ 		/* Report */
+-		res[i]->report(wcrpg_get_log());
++		//res[i]->report(wcrpg_get_log());
+ 	}
+ }
+ 
+@@ -61,7 +61,7 @@
+ {
+ 	int i;
+ 	/* Release fallbacks */
+-	wcres_unregister_rtp();
++	//wcres_unregister_rtp();
+ 	/* Release all */
+ 	for(i = 0;i < MATERIAL_FOLDER_COUNT;i++)
+ 	{
+Index: wcmem.cpp
+===================================================================
+--- wcmem.cpp	(revision 274)
++++ wcmem.cpp	(working copy)
+@@ -17,6 +17,8 @@
+ #include "wchero.h"
+ #include "wcskill.h"
+ 
++#include <string>
++
+ /* Globals */
+ arraylist wcmem_self_list = 0;
+ int wcmem_switch_count = 0;
+Index: wcmenu.cpp
+===================================================================
+--- wcmenu.cpp	(revision 274)
++++ wcmenu.cpp	(working copy)
+@@ -13,6 +13,8 @@
+ #include "wcsystem.h"
+ #include "wcsave.h"
+ 
++#include <android\log.h>
++
+ /* Create menu */
+ menu :: menu(int w,int os)
+ {
+@@ -79,7 +81,7 @@
+ 	tx = new text(str);
+ 	tx->advance(TEXT_ALL,0);
+ 	wcarray_add(ls,tx);
+-	sprintf_s(buffer,sizeof(buffer),"%d",amt);
++	sprintf(buffer,"%d",amt);
+ 	wcarray_add(nls,wcrpg_string_clone(buffer));
+ }
+ 
+@@ -88,6 +90,7 @@
+ {
+ 	if(!closing)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "menu :: close()");
+ 		active = 1;
+ 		closing = 1;
+ 	}
+@@ -137,6 +140,7 @@
+ /* Opens menu */
+ void menu :: activate()
+ {
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "menu :: activate()");
+ 	active = 1;
+ 	autofire = 1;
+ 	closing = 0;
+@@ -342,7 +346,7 @@
+ 		mn = new menu(WCMENU_MAIN_WIDTH,4);
+ 	if(wcsave_has_game_saves())
+ 	{
+-		sprintf_s(buffer,sizeof(buffer),"(%s %d)",wcvocab_get(148),wcsave_get_last()+1);
++		sprintf(buffer,"(%s %d)",wcvocab_get(148),wcsave_get_last()+1);
+ 		mn->add(wcrpg_string_clone(buffer));
+ 	}
+ 	mn->add(wcrpg_string_clone(wcvocab_get(114)));
+Index: wcmetric.cpp
+===================================================================
+--- wcmetric.cpp	(revision 274)
++++ wcmetric.cpp	(working copy)
+@@ -47,7 +47,7 @@
+ {
+ 	/* Open channel to battle log */
+ #ifndef NDEBUG
+-	fopen_s(&stdbattle,"wcrpgbattle.txt","w");
++	//fopen("wcrpgbattle.txt","w");
+ #endif
+ #ifdef NDEBUG
+ 	stdbattle = stdout;
+Index: wcmonster.cpp
+===================================================================
+--- wcmonster.cpp	(revision 274)
++++ wcmonster.cpp	(working copy)
+@@ -13,6 +13,8 @@
+ #include "wcbattleset.h"
+ #include "wcattribute.h"
+ 
++#include <string>
++
+ /* Globals */
+ table *monster_table;
+ arraylist monsters;
+Index: wcmove.cpp
+===================================================================
+--- wcmove.cpp	(revision 274)
++++ wcmove.cpp	(working copy)
+@@ -13,6 +13,9 @@
+ #include "wcpage.h"
+ #include "wcsaveio.h"
+ 
++#include <string>
++#include <stdlib.h>
++
+ /* Globals */
+ int wcmove_active_count = 0;
+ move *wcmove_default_face_random; /* These are all built-in move commands for the default routes */
+Index: wcnucleus.cpp
+===================================================================
+--- wcnucleus.cpp	(revision 274)
++++ wcnucleus.cpp	(working copy)
+@@ -38,8 +38,11 @@
+ #include "wcscreenshot.h"
+ #include "wcinvoke.h"
+ 
++#include <android\log.h>
++
+ /* Globals */
+ int wcnucleus_mode = WCRPG_TITLE_SCREEN;
++//int wcnucleus_mode = WCRPG_MAP;
+ int wcnucleus_anti_auto_fire = 0;
+ int wcnucleus_step = 0;
+ int wcnucleus_current_song = 0;
+@@ -99,6 +102,7 @@
+ /* Set mode */
+ void wcnucleus_set_mode(int m)
+ {
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcnucleus_set_mode wcnucleus_step=0 %d %d",wcnucleus_step, m);
+ 	wcnucleus_step = 0;
+ 	wcnucleus_mode = m;
+ }
+@@ -165,6 +169,7 @@
+ 			delete wcnucleus_game_over_tex;
+ 		wcnucleus_game_over_tex = new texture(wcmaterial_request(MATERIAL_GAME_OVER,wcsystem_get_game_over_graphic()),1);
+ 		wcnucleus_game_over_tex->reduce();
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcnucleus_step==0 %d wcnucleus_step=1",wcnucleus_step);
+ 		wcnucleus_step = 1;
+ 		wcnucleus_main_menu = wcmenu_generate_title();
+ 	}
+@@ -184,6 +189,7 @@
+ 		if(wcinput_sound_test())
+ 		{
+ 			wcsound_music_stop();
++			__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcinput_sound_test %d wcnucleus_step=2",wcnucleus_step);
+ 			wcnucleus_step = 2;
+ 		}
+ 		/* Open */
+@@ -205,26 +211,26 @@
+ 		/* Start the gaem! */
+ 		if(!wcsavemenu_active())
+ 		{
+-			if(wcnucleus_main_menu->get_selection()-hs == 0 || (wcrpg_neo_mode() && !*wcvocab_get(VOCAB_NEW_GAME)) || wcsave_game_loaded())
+-			{
++			//if(wcnucleus_main_menu->get_selection()-hs == 0 || (wcrpg_neo_mode() && !*wcvocab_get(VOCAB_NEW_GAME)) || wcsave_game_loaded())
++			//{
+ 				/* Start */
+ 				delete wcnucleus_main_menu;
+ 				wcnucleus_main_menu = 0;
+ 				if(!wcsave_game_loaded())
+ 					wclevel_load_start();
+ 				wcnucleus_set_mode(WCRPG_MAP);
+-			}
+-			else
+-			{
+-				/* Load some gaem */
+-				if(wcnucleus_main_menu->get_selection()-hs == 1)
+-					wcsavemenu_open(wcnucleus_main_menu,1);
+-				if(hs)
+-				{
+-					if(wcnucleus_main_menu->get_selection()-hs == -1)
+-						wcsave_load(wcsave_get_last());
+-				}
+-			}
++			//}
++			//else
++			//{
++			//	/* Load some gaem */
++			//	if(wcnucleus_main_menu->get_selection()-hs == 1)
++			//		wcsavemenu_open(wcnucleus_main_menu,1);
++			//	if(hs)
++			//	{
++			//		if(wcnucleus_main_menu->get_selection()-hs == -1)
++			//			wcsave_load(wcsave_get_last());
++			//	}
++			//}
+ 		}
+ 	}
+ 	/* Music room */
+@@ -313,6 +319,7 @@
+ 		if(wcinput_ok() && wcnucleus_step == 0 && !wctrans_active())
+ 		{
+ 			wctrans_erase(WCTRANS_FADE);
++			__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcnucleus_game_over %d wcnucleus_step++",wcnucleus_step);
+ 			wcnucleus_step++;
+ 		}
+ 		/* Wait for erased */
+@@ -360,7 +367,7 @@
+ 	wcpopnum_handle(); /* Pop numbers always work */
+ 	wcfx_handle(); /* Handled no matter what */
+ 	wctrans_handle(); /* Handled always */
+-	wcscreenshot_handle(); /* Handle screenshots */
++	//wcscreenshot_handle(); /* Handle screenshots */
+ 	wcnucleus_handle_debug(); /* Handle debugs */
+ }
+ 
+@@ -434,7 +441,7 @@
+ 
+ /* Draws the entire game */
+ void wcnucleus_draw()
+-{
++{ 
+ 	font *fon;
+ 	/* Title screen */
+ 	if(wcnucleus_get_mode() == WCRPG_TITLE_SCREEN)
+@@ -456,44 +463,44 @@
+ 	/* Game.. Over */
+ 	if(wcnucleus_get_mode() == WCRPG_GAME_OVER)
+ 	{
+-		/* Draw game over screen */
++		/* Draw game over screen */ 
+ 		wcnucleus_game_over_tex->draw(0,0);
+ 	}
+ 	/* Draws the current level */
+ 	if(wcnucleus_get_mode() == WCRPG_MODE_MAP_VIEW || wcnucleus_get_mode() == WCRPG_MAP)
+ 		wclevel_draw();
+ 	/* Battle layer */
+-	wcbattle_system_draw(0);
++	//wcbattle_system_draw(0);
+ 	/* Draw screen shader */
+-	wcdraw_screen_shader();
++	//wcdraw_screen_shader();
+ 	/* Here is where the tint level is */
+-	wcnucleus_handle_tint();
++	//wcnucleus_handle_tint();
+ 	/* Picture layer */
+-	wcpicture_draw();
++	//wcpicture_draw();
+ 	/* Pop up numbers */
+-	wcpopnum_draw();
++	//wcpopnum_draw();
+ 	/* Animation layer */
+-	wcanimation_draw();
++	//wcanimation_draw();
+ 	/* Effect layer */
+-	wcfx_draw();
++	//wcfx_draw();
+ 	/* Trans later */
+-	wctrans_draw();
++	//wctrans_draw();
+ 	/* Draws the menu layer */
+ 	if(wcnucleus_get_mode() == WCRPG_MAP)
+ 	{
+-		wctimer_draw(); /* Draw all timers */
+-		wcbattle_system_draw(1); /* Menus for battle system */
+-		wcguibuild_draw(); /* User defined gui elements */
+-		wcmanage_draw();
+-		wcmessage_draw();
+-		wcquitmenu_draw();
+-		wcstatusmenu_draw();
+-		wcitemmenu_draw();
+-		wcskillmenu_draw();
++		//wctimer_draw(); /* Draw all timers */
++		//wcbattle_system_draw(1); /* Menus for battle system */
++		//wcguibuild_draw(); /* User defined gui elements */
++		//wcmanage_draw();
++		//wcmessage_draw();
++		//wcquitmenu_draw();
++		//wcstatusmenu_draw();
++		//wcitemmenu_draw();
++		//wcskillmenu_draw();
+ 	}
+-	wcsavemenu_draw(); /* Drawn regardless of playing game or not */
+-	wcdialog_draw();
++	//wcsavemenu_draw(); /* Drawn regardless of playing game or not */
++	//wcdialog_draw();
+ 	/* Draw debugger stuff */
+-	wcscreenshot_draw();
+-	wcrpg_draw_debug();
++	//wcscreenshot_draw();
++	//wcrpg_draw_debug();
+ }
+\ No newline at end of file
+Index: wcpage.cpp
+===================================================================
+--- wcpage.cpp	(revision 274)
++++ wcpage.cpp	(working copy)
+@@ -12,6 +12,8 @@
+ #include "wcitem.h"
+ #include "wctimer.h"
+ 
++#include "android\log.h"
++
+ /* Returns starting condition name */
+ char *wcpage_get_start_name(int code)
+ {
+@@ -220,6 +222,7 @@
+ /* Load page */
+ page :: page(FILE *f)
+ {
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "new page");
+ 	unsigned char *d;
+ 	int code,len,rlen;
+ 	command *cmd;
+@@ -395,7 +398,7 @@
+ 	int i;
+ 	command *cmd;
+ 	/* Dump it */
+-	fopen_s(&f,filename,"wb");
++	//fopen(filename,"wb");
+ 	if(f)
+ 	{
+ 		/* Movement settings */
+Index: wcparty.cpp
+===================================================================
+--- wcparty.cpp	(revision 274)
++++ wcparty.cpp	(working copy)
+@@ -13,6 +13,8 @@
+ #include "wcplayer.h"
+ #include "wcwindow.h"
+ 
++#include <string>
++
+ /* Globals */
+ int wcparty_current_size = 0; /* Current size of party */
+ int wcparty_party[MAX_PARTY_SIZE]; /* Just a list o' ids */
+Index: wcperform.cpp
+===================================================================
+--- wcperform.cpp	(revision 274)
++++ wcperform.cpp	(working copy)
+@@ -8,6 +8,8 @@
+ #include "wcrpg.h"
+ #include "wcimage.h"
+ 
++#include <string>
++
+ #ifndef NDEBUG
+ 
+ /* Globals */
+Index: wcpicture.cpp
+===================================================================
+--- wcpicture.cpp	(revision 274)
++++ wcpicture.cpp	(working copy)
+@@ -10,6 +10,8 @@
+ #include "wclevel.h"
+ #include "wcrpg.h"
+ 
++#include <string>
++
+ /* Globals */
+ picture *pics[WCPICTURE_MAX];
+ 
+Index: wcpopnum.cpp
+===================================================================
+--- wcpopnum.cpp	(revision 274)
++++ wcpopnum.cpp	(working copy)
+@@ -8,6 +8,8 @@
+ #include "wcwindow.h"
+ #include "wcrpg.h"
+ 
++#include <string>
++
+ /* Globals */
+ popnum *wcpopnum_list[WCPOPNUM_MAX];
+ int wcpopnum_next = 0;
+Index: wcres.cpp
+===================================================================
+--- wcres.cpp	(revision 274)
++++ wcres.cpp	(working copy)
+@@ -3,13 +3,28 @@
+ */
+ 
+ /* Includes */
+-#include <windows.h>
++//#include <windows.h>
+ #include <malloc.h>
+ #include <string.h>
+ #include <stdio.h>
+ #include "wcrpg.h"
+ #include "wcres.h"
+ 
++#include <android\log.h>
++
++#include <vector>
++#include <string>
++
++#include <dirent.h>
++
++#include <sstream>
++
++
++using namespace std;
++
++
++
++
+ /* Globals */
+ arraylist wcres_rtp_folders;
+ 
+@@ -35,71 +50,99 @@
+ /* Create */
+ reslist :: reslist(char *folder)
+ {
+-	char buffer[MAX_PATH];
+-	char addbuffer[MAX_PATH];
+-	WIN32_FIND_DATAA fd;
+-	HANDLE hf;
+-	int i;
+-	/* Make name */
+-	source = folder;
+-	sprintf_s(buffer,sizeof(buffer),"%s%s/*",wcrpg_get_root(),folder);
+-	/* Allocate */
++	
++	char buffer[260];
++	char addbuffer[260];	
++	sprintf(buffer,"%s%s/","/sdcard/wcr2kxx/assets/",folder);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "reslist [%s]",buffer);
+ 	list = wcarray_new();
+-	/* Find the first file */
+-	hf = FindFirstFileA(buffer,&fd);
+-	if(hf == INVALID_HANDLE_VALUE)
+-	{
+-		/* No files I guess */
+-		wclog_write(wcrpg_get_log(),"Nothing found for: ");
+-		wclog_write(wcrpg_get_log(),buffer);
+-		wclog_enter(wcrpg_get_log());
+-	}
+-	else
+-	{
+-		/* Go through all possible candidates */
+-		for(;;)
+-		{
+-			/* If it's a valid file name and not a directory, add */
+-			if((fd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) == 0)
+-			{
+-				/* Don't use hidden files */
+-				if((fd.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN) == 0)
+-				{
+-					sprintf_s(addbuffer,sizeof(addbuffer),"%s%s/%s",wcrpg_get_root(),folder,fd.cFileName);
++
++	DIR *dir;
++	struct dirent *ent;
++	dir = opendir (buffer);
++	if (dir != NULL) {
++
++		/* print all the files and directories within directory */
++		while ((ent = readdir (dir)) != NULL) {
++			if (strcmp(ent->d_name, ".") &&
++				strcmp(ent->d_name, "..")){
++					__android_log_print(ANDROID_LOG_INFO, "adMOB","%s", ent->d_name);
++					//sprintf(addbuffer,"%s%s/%s","/sdcard/wcr2kxx/assets/",folder,ent->d_name);
++					sprintf(addbuffer,"%s/%s",folder,ent->d_name);
+ 					wcarray_add(list,wcrpg_string_clone(addbuffer));
+-				}
+ 			}
+-			/* Get next and done */
+-			if(!FindNextFileA(hf,&fd))
+-				break;
+ 		}
+-	}
+-	/* Then index the RTP AFTER so that it falls back */
+-	for(i = 0;i < wcarray_size(wcres_rtp_folders);i++)
+-	{
+-		sprintf_s(buffer,sizeof(buffer),"%s%s/*",(char*)wcarray_get(wcres_rtp_folders,i),folder);
+-		hf = FindFirstFileA(buffer,&fd);
+-		if(hf != INVALID_HANDLE_VALUE)
+-		{
+-			/* Go through all possible candidates */
+-			for(;;)
+-			{
+-				/* If it's a valid file name and not a directory, add */
+-				if((fd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) == 0)
+-				{
+-					/* Don't use hidden files */
+-					if((fd.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN) == 0)
+-					{
+-						sprintf_s(addbuffer,sizeof(addbuffer),"%s%s/%s",(char*)wcarray_get(wcres_rtp_folders,i),folder,fd.cFileName);
+-						wcarray_add(list,wcrpg_string_clone(addbuffer));
+-					}
+-				}
+-				/* Get next and done */
+-				if(!FindNextFileA(hf,&fd))
+-					break;
+-			}
+-		}
+-	}
++		closedir (dir);  
++	} 
++
++
++	//travelDirectoryRecursive(buffer);
++
++	//char buffer[260];
++	//char addbuffer[260];
++	//WIN32_FIND_DATAA fd;
++	//HANDLE hf;
++	//int i;
++	///* Make name */
++	//source = folder;
++	//sprintf_s(buffer,sizeof(buffer),"%s%s/*",wcrpg_get_root(),folder);
++	///* Allocate */
++	//list = wcarray_new();
++	///* Find the first file */
++	//hf = FindFirstFileA(buffer,&fd);
++	//if(hf == INVALID_HANDLE_VALUE)
++	//{
++	//	/* No files I guess */
++	//	wclog_write(wcrpg_get_log(),"Nothing found for: ");
++	//	wclog_write(wcrpg_get_log(),buffer);
++	//	wclog_enter(wcrpg_get_log());
++	//}
++	//else
++	//{
++	//	/* Go through all possible candidates */
++	//	for(;;)
++	//	{
++	//		/* If it's a valid file name and not a directory, add */
++	//		if((fd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) == 0)
++	//		{
++	//			/* Don't use hidden files */
++	//			if((fd.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN) == 0)
++	//			{
++	//				sprintf_s(addbuffer,sizeof(addbuffer),"%s%s/%s",wcrpg_get_root(),folder,fd.cFileName);
++	//				wcarray_add(list,wcrpg_string_clone(addbuffer));
++	//			}
++	//		}
++	//		/* Get next and done */
++	//		if(!FindNextFileA(hf,&fd))
++	//			break;
++	//	}
++	//}
++	///* Then index the RTP AFTER so that it falls back */
++	//for(i = 0;i < wcarray_size(wcres_rtp_folders);i++)
++	//{
++	//	sprintf_s(buffer,sizeof(buffer),"%s%s/*",(char*)wcarray_get(wcres_rtp_folders,i),folder);
++	//	hf = FindFirstFileA(buffer,&fd);
++	//	if(hf != INVALID_HANDLE_VALUE)
++	//	{
++	//		/* Go through all possible candidates */
++	//		for(;;)
++	//		{
++	//			/* If it's a valid file name and not a directory, add */
++	//			if((fd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) == 0)
++	//			{
++	//				/* Don't use hidden files */
++	//				if((fd.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN) == 0)
++	//				{
++	//					sprintf_s(addbuffer,sizeof(addbuffer),"%s%s/%s",(char*)wcarray_get(wcres_rtp_folders,i),folder,fd.cFileName);
++	//					wcarray_add(list,wcrpg_string_clone(addbuffer));
++	//				}
++	//			}
++	//			/* Get next and done */
++	//			if(!FindNextFileA(hf,&fd))
++	//				break;
++	//		}
++	//	}
++	//}
+ }
+ 
+ /* Free */
+@@ -186,13 +229,14 @@
+ {
+ 	int i,j,enh;
+ 	int namestart;
+-	char buffer[MAX_PATH];
++	char buffer[260];
+ 	char *cc;
+ 	/* Nullify */
+ 	if(!name)
+ 		return 0;
+ 	/* Make name looking for 20XX file */
+-	sprintf_s(buffer,sizeof(buffer),"%s-2x",name);
++	sprintf(buffer,"%s-2x",name);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "res::request [%s]",buffer);
+ 	/* Loop */
+ 	for(enh = 1;enh >= 0;enh--)
+ 	{
+@@ -271,7 +315,7 @@
+ 	/* Create a string copy of ix */
+ 	cn = (char*)malloc(len);
+ 	memset(cn,0,len);
+-	sprintf_s(cn,len,"%d",ix);
++	sprintf(cn,"%d",ix);
+ 	/* Return the compare */
+ 	ret = !strcmp(cn,cc);
+ 	/* Free */
+Index: wcrpg.cpp
+===================================================================
+--- wcrpg.cpp	(revision 274)
++++ wcrpg.cpp	(working copy)
+@@ -13,10 +13,10 @@
+ */
+ 
+ /* Includes */
+-#include <SDL.h>
+-#include <SDL_image.h>
+-#include <SDL_syswm.h>
+-#include "resource.h"
++//#include <SDL.h>
++//#include <SDL_image.h>
++//#include <SDL_syswm.h>
++//#include "resource.h"
+ #include "wcrpg.h"
+ #include "wcini.h"
+ #include "wcdraw.h"
+@@ -55,29 +55,49 @@
+ #include "wctimer.h"
+ #include "wcscreenshot.h"
+ 
++#include <android\log.h>
++#include "../jniUtil.h"
++
++
++#include <stdlib.h>
++
+ /* Globals */
+ char *wcrpg_test_play_command = "TestPlay"; /* If this begins the command line, then run with rpg2003.exe */
+ char *wcrpg_root = 0; /* Root folder name, defaults to current */
+-SDL_Surface *screen; /* Main screen SDL surface */
++
++//SDL_Surface *screen; /* Main screen SDL surface */
++int screen; /* Main screen SDL surface */
++
+ elog wcrpg_log; /* Main log */
+ int wcrpg_error_count = 0; /* Number of errors */
+ char *wcrpg_title = 0; /* Game title */
+ int wcrpg_mag = WCRPG_DEFAULT_MAG; /* Screen multiplier */
+-HINSTANCE wcrpg_inst; /* RPG instance */
++
++//HINSTANCE wcrpg_inst; /* RPG instance */
++int wcrpg_inst; /* RPG instance */
++
+ int wcrpg_ms_select = 0; /* Selected font for this game */
+ font *wcrpg_sysfont; /* System font for debugging in */
+ font *wcrpg_ms_gothic; /* Default RM2K font */
+ font *wcrpg_ms_mincho; /* Other Default RM2K font */
+ float wcrpg_time_step = 0.0f; /* Current system time step */
+-LARGE_INTEGER wcrpg_time_measure; /* Measured time */
+-LARGE_INTEGER wcrpg_time_final; /* Time ended */
+-LARGE_INTEGER wcrpg_time_freq; /* Frequency of cycles */
++//LARGE_INTEGER wcrpg_time_measure; /* Measured time */
++//LARGE_INTEGER wcrpg_time_final; /* Time ended */
++//LARGE_INTEGER wcrpg_time_freq; /* Frequency of cycles */
++int wcrpg_time_measure; /* Measured time */
++int wcrpg_time_final; /* Time ended */
++int wcrpg_time_freq; /* Frequency of cycles */
++
++
+ int wcrpg_fps_cur = 0; /* Current measuring of frames per second */
+ int wcrpg_fps_buffer[WCRPG_FPS_LENGTH]; /* Samples of FPS */
+ int wcrpg_fps = 0; /* Frames per second */
+ int wcrpg_signal_quit = 0; /* If this is 1, the engine quits next frame */
+ int wcrpg_20xx_mode = 0; /* If this is 1, all the extensions are enabled */
+-SDL_Surface *wcrpg_window_icon = 0; /* Window icon */
++
++//SDL_Surface *wcrpg_window_icon = 0; /* Window icon */
++int *wcrpg_window_icon = 0; /* Window icon */
++
+ int wcrpg_2000_mode = 0; /* If this is 1, this effects how data is loaded from database */
+ int wcrpg_test_play_mode = 0; /* If this is 1, debugging tools are enabled */
+ float wcrpg_speed_factor = 1.0f; /* This speeds up or slows down the entire game engine */
+@@ -123,29 +143,30 @@
+ void wcrpg_time_start()
+ {
+ 	/* Sample the time */
+-	QueryPerformanceCounter(&wcrpg_time_measure);
++	//QueryPerformanceCounter(&wcrpg_time_measure);
+ }
+ 
+ /* Measure the end time and create time step */
+ void wcrpg_time_end()
+ {
+-	float ctime;
+-	int accu,i;
+-	/* Find delta */
+-	QueryPerformanceCounter(&wcrpg_time_final);
+-	wcrpg_time_final.QuadPart -= wcrpg_time_measure.QuadPart;
+-	QueryPerformanceFrequency(&wcrpg_time_freq);
+-	wcrpg_time_step = (float)(wcrpg_time_final.QuadPart)/(float)(wcrpg_time_freq.QuadPart);
+-	/* Now we know the duration in seconds of the last frame. */
+-	ctime = 1.0f/16.0f; /* 16 frames per second */
+-	wcrpg_fps_buffer[wcrpg_fps_cur] = (int)(1.0f/wcrpg_time_step);
+-	wcrpg_fps_cur = (wcrpg_fps_cur+1)%WCRPG_FPS_LENGTH;
+-	accu = 0;
+-	for(i = 0;i < WCRPG_FPS_LENGTH;i++)
+-		accu += wcrpg_fps_buffer[i];
+-	wcrpg_fps = accu/WCRPG_FPS_LENGTH;
+-	/* At 16FPS the step should be 1 and decrease as speed increases */
+-	wcrpg_time_step = wcrpg_time_step/ctime;
++	//float ctime;
++	//int accu,i;
++	///* Find delta */
++	//QueryPerformanceCounter(&wcrpg_time_final);
++	//wcrpg_time_final.QuadPart -= wcrpg_time_measure.QuadPart;
++	//QueryPerformanceFrequency(&wcrpg_time_freq);
++	//wcrpg_time_step = (float)(wcrpg_time_final.QuadPart)/(float)(wcrpg_time_freq.QuadPart);
++	///* Now we know the duration in seconds of the last frame. */
++	//ctime = 1.0f/16.0f; /* 16 frames per second */
++	//wcrpg_fps_buffer[wcrpg_fps_cur] = (int)(1.0f/wcrpg_time_step);
++	//wcrpg_fps_cur = (wcrpg_fps_cur+1)%WCRPG_FPS_LENGTH;
++	//accu = 0;
++	//for(i = 0;i < WCRPG_FPS_LENGTH;i++)
++	//	accu += wcrpg_fps_buffer[i];
++	//wcrpg_fps = accu/WCRPG_FPS_LENGTH;
++	///* At 16FPS the step should be 1 and decrease as speed increases */
++	//wcrpg_time_step = wcrpg_time_step/ctime;
++	wcrpg_time_step = 0.27;
+ }
+ 
+ /* Returns the time step */
+@@ -163,7 +184,8 @@
+ }
+ 
+ /* Gets program instance */
+-HINSTANCE wcrpg_get_instance()
++//HINSTANCE wcrpg_get_instance()
++int wcrpg_get_instance()
+ {
+ 	return wcrpg_inst;
+ }
+@@ -185,7 +207,7 @@
+ 	/* Clone it */
+ 	len = (int)strlen(c)+1;
+ 	cc = (char*)malloc(len);
+-	memcpy_s(cc,len,c,len);
++	memcpy(cc,c,len);
+ 	return cc;
+ }
+ 
+@@ -201,7 +223,7 @@
+ 	{
+ 		/* Etc. */
+ #ifndef NDEBUG
+-		MessageBoxA(NULL,"... And many other errors, look inside wcrpg.txt for details.","Error",MB_ICONERROR);
++		//MessageBoxA(NULL,"... And many other errors, look inside wcrpg.txt for details.","Error",MB_ICONERROR);
+ #endif
+ #ifdef NDEBUG
+ 		MessageBoxA(NULL,"... And additional errors. Please check engine and RTP installations.","Error",MB_ICONERROR);
+@@ -213,30 +235,30 @@
+ 	if(wcrpg_error_count > 5)
+ 		return;
+ 	/* Report */
+-	MessageBoxA(NULL,msg,"Error",MB_ICONERROR);
++	//MessageBoxA(NULL,msg,"Error",MB_ICONERROR);
+ }
+ 
+ /* Display a formatted error */
+ void wcrpg_error(char *msg,char *str)
+ {
+-	char buffer[MAX_PATH];
+-	sprintf_s(buffer,sizeof(buffer),msg,str);
++	char buffer[260];
++	sprintf(buffer,msg,str);
+ 	wcrpg_error(buffer);
+ }
+ 
+ /* Display a formatted error with two strings */
+ void wcrpg_error(char *msg,char *str1,char *str2)
+ {
+-	char buffer[MAX_PATH];
+-	sprintf_s(buffer,sizeof(buffer),msg,str1,str2);
++	char buffer[260];
++	sprintf(buffer,msg,str1,str2);
+ 	wcrpg_error(buffer);
+ }
+ 
+ /* Display a number error */
+ void wcrpg_error(char *msg,int n)
+ {
+-	char buffer[MAX_PATH];
+-	sprintf_s(buffer,sizeof(buffer),msg,n);
++	char buffer[260];
++	sprintf(buffer,msg,n);
+ 	wcrpg_error(buffer);
+ }
+ 
+@@ -263,9 +285,9 @@
+ /* Starts the system */
+ int wcrpg_start()
+ {
+-	HWND hwnd;
++	/*HWND hwnd;
+ 	SDL_SysWMinfo info;
+-	RECT rect;
++	RECT rect;*/
+ 	int scw,sch;
+ 	/* Announce */
+ 	wclog_write(wcrpg_log,"Starting systems...");
+@@ -273,36 +295,36 @@
+ 	/* Blank out fps buffer */
+ 	memset(wcrpg_fps_buffer,0,sizeof(wcrpg_fps_buffer));
+ 	/* Initialize sdl */
+-	if(SDL_Init(SDL_INIT_VIDEO) == -1)
++	/*if(SDL_Init(SDL_INIT_VIDEO) == -1)
+ 	{
+ 		wcrpg_error("Could not initialize SDL (%s)",SDL_GetError());
+ 		return 0;
+-	}
++	}*/
+ 	/* Open window */
+-	screen = SDL_SetVideoMode(WCRPG_WIDTH*wcrpg_mag,WCRPG_HEIGHT*wcrpg_mag,0,SDL_HWSURFACE|SDL_DOUBLEBUF);
+-	if(!screen)
+-	{
+-		wcrpg_error("Could not set video mode (%s)",SDL_GetError());
+-		return 0;
+-	}
+-	/* Center it on screen */
+-	SDL_VERSION(&info.version);
+-	SDL_GetWMInfo(&info);
+-	hwnd = info.window;
+-	GetWindowRect(hwnd,&rect);
+-	scw = GetSystemMetrics(SM_CXSCREEN);
+-	sch = GetSystemMetrics(SM_CYSCREEN);
++	//screen = SDL_SetVideoMode(WCRPG_WIDTH*wcrpg_mag,WCRPG_HEIGHT*wcrpg_mag,0,SDL_HWSURFACE|SDL_DOUBLEBUF);
++	//if(!screen)
++	//{
++	//	wcrpg_error("Could not set video mode (%s)",SDL_GetError());
++	//	return 0;
++	//}
++	///* Center it on screen */
++	//SDL_VERSION(&info.version);
++	//SDL_GetWMInfo(&info);
++	//hwnd = info.window;
++	//GetWindowRect(hwnd,&rect);
++	//scw = GetSystemMetrics(SM_CXSCREEN);
++	//sch = GetSystemMetrics(SM_CYSCREEN);
+ 	wclog_write(wcrpg_log,"Window centered at (");
+-	wclog_write(wcrpg_log,scw/2-(rect.right-rect.left)/2);
++	//wclog_write(wcrpg_log,scw/2-(rect.right-rect.left)/2);
+ 	wclog_write(wcrpg_log,",");
+-	wclog_write(wcrpg_log,sch/2-(rect.bottom-rect.top)/2);
++	//wclog_write(wcrpg_log,sch/2-(rect.bottom-rect.top)/2);
+ 	wclog_write(wcrpg_log,")");
+ 	wclog_enter(wcrpg_log);
+-	MoveWindow(hwnd,scw/2-(rect.right-rect.left)/2,sch/2-(rect.bottom-rect.top)/2,(rect.right-rect.left),(rect.bottom-rect.top),1);
++	//MoveWindow(hwnd,scw/2-(rect.right-rect.left)/2,sch/2-(rect.bottom-rect.top)/2,(rect.right-rect.left),(rect.bottom-rect.top),1);
+ 	/* Title the window */
+-	SDL_WM_SetCaption("WolfCoder RPG2KX Engine","wcrpg");
+-	if(wcrpg_title)
+-		SDL_WM_SetCaption(wcrpg_title,"wcrpg");
++	//SDL_WM_SetCaption("WolfCoder RPG2KX Engine","wcrpg");
++	//if(wcrpg_title)
++	//	SDL_WM_SetCaption(wcrpg_title,"wcrpg");
+ 	/* Start drawing system */
+ 	if(!wcdraw_start())
+ 		return 0;
+@@ -310,14 +332,14 @@
+ 	if(!wcsound_start())
+ 		return 0;
+ 	/* Load fonts */
+-	wcrpg_sysfont = new font(bmp_sysfont,256,32);
++	//wcrpg_sysfont = new font(bmp_sysfont,256,32);
+ 	wcrpg_ms_gothic = new font("msgothic.bmp");
+ 	wcrpg_ms_gothic->set_compression(2);
+ 	wcrpg_ms_mincho = new font("msmincho.bmp");
+ 	wcrpg_ms_mincho->set_compression(2);
+ 	/* Load window icon */
+-	wcrpg_window_icon = IMG_Load("wicon.bmp");
+-	SDL_WM_SetIcon(wcrpg_window_icon,0);
++	//wcrpg_window_icon = IMG_Load("wicon.bmp");
++	//SDL_WM_SetIcon(wcrpg_window_icon,0);
+ 	return 1;
+ }
+ 
+@@ -325,9 +347,13 @@
+ void wcrpg_end()
+ {
+ 	/* Release font */
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcrpg_end[1]");
+ 	delete wcrpg_sysfont;
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcrpg_end[2]");
+ 	delete wcrpg_ms_gothic;
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcrpg_end[3]");
+ 	delete wcrpg_ms_mincho;
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcrpg_end[4]");
+ 	/* Report */
+ 	wclog_write(wcrpg_log,"Peak VRAM: ");
+ 	wclog_write(wcrpg_log,wcdraw_get_peak_vram());
+@@ -336,32 +362,35 @@
+ 	wclog_write(wcrpg_log,"Shutting down...");
+ 	wclog_enter(wcrpg_log);
+ 	/* Stop sound system */
+-	wcsound_end();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcrpg_end[5]");
++	//wcsound_end();
+ 	/* Stop drawing system */
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcrpg_end[6]");
+ 	wcdraw_end();
+ 	/* Stop SDL */
+-	SDL_Quit();
++	//SDL_Quit();
+ 	/* Free game title */
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcrpg_end[7]");
+ 	free(wcrpg_title);
+ }
+ 
+ /* Handles one frame of the system */
+ int wcrpg_handle()
+ {
+-	SDL_Event ev;
+-	/* Start time */
+-	wcrpg_time_start();
+-	wcdraw_triangle_count_reset();
+-	/* Handle events */
+-	while(SDL_PollEvent(&ev))
+-	{
+-		/* User wants to quit */
+-		if(ev.type == SDL_QUIT)
+-			return 0;
+-	}
+-	/* Quit? */
+-	if(wcrpg_signal_quit)
+-		return 0;
++	//SDL_Event ev;
++	///* Start time */
++	//wcrpg_time_start();
++	//wcdraw_triangle_count_reset();
++	///* Handle events */
++	//while(SDL_PollEvent(&ev))
++	//{
++	//	/* User wants to quit */
++	//	if(ev.type == SDL_QUIT)
++	//		return 0;
++	//}
++	///* Quit? */
++	//if(wcrpg_signal_quit)
++	//	return 0;
+ 	return 1;
+ }
+ 
+@@ -380,7 +409,7 @@
+ /* Identifys the game */
+ int wcrpg_identify()
+ {
+-	char buffer[MAX_PATH];
++	char buffer[260];
+ 	char *video_str;
+ 	char *neo_str;
+ 	char *reg_str;
+@@ -388,16 +417,19 @@
+ 	FILE *f;
+ 	ini *ii;
+ 	/* Attempt to open RPG_RT.ini */
+-	sprintf_s(buffer,sizeof(buffer),"%sRPG_RT.ini",wcrpg_get_root());
+-	fopen_s(&f,buffer,"r");
++	sprintf(buffer,"/sdcard/wcr2kxx/assets/RPG_RT.ini");
++
++	f=fopen(buffer,"r");
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcrpg_identify[%s]",buffer);
+ 	if(!f)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcrpg_identify[%s] not found",buffer);
+ 		/* Look for wcrpg.ini */
+ 		wclog_write(wcrpg_log,buffer);
+ 		wclog_write(wcrpg_log," not found, trying wcrpg.ini...");
+ 		wclog_enter(wcrpg_log);
+-		sprintf_s(buffer,sizeof(buffer),"%swcrpg.ini",wcrpg_get_root());
+-		fopen_s(&f,buffer,"r");
++		sprintf(buffer,"%swcrpg.ini","/sdcard/wcr2kxx/assets/");
++		f=fopen(buffer,"r");
+ 		/* Error if this failed */
+ 		if(!f)
+ 		{
+@@ -408,8 +440,11 @@
+ 		}
+ 	}
+ 	/* All OK, identify */
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcrpg_identify[1]");
+ 	ii = new ini(buffer);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcrpg_identify[2]");
+ 	wclog_write(wcrpg_log,"Loaded .ini file.");
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcrpg_identify[3]");
+ 	wclog_enter(wcrpg_log);
+ 	ii->report(wcrpg_log);
+ 	/* Get year */
+@@ -510,29 +545,38 @@
+ }
+ 
+ /* Program entry */
+-int WINAPI WinMain(HINSTANCE h,HINSTANCE hp,PSTR c,int s)
+-{
++//int WINAPI WinMain(HINSTANCE h,HINSTANCE hp,PSTR c,int s)
++int init_()
++{ 
+ 	/* Instance */
+-	wcrpg_inst = h;
++	//wcrpg_inst = h;
+ 	/* Open log */
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[1]");
+ 	wcrpg_log = wclog_open("wcrpg");
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[2]");
+ 	wclog_write(wcrpg_log,"WolfCoder's RPG2KX Engine V1.0 (2010)");
+-	wclog_enter(wcrpg_log);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[3]");
++	JNIUtil::jni_readLog();
++	//wclog_enter(wcrpg_log);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[4]");
+ 	/* Working dir */
+-	wcrpg_root = (char*)c;
++	//wcrpg_root = (char*)c;
+ 	/* Enforce test play during debugging */
+ #ifndef NDEBUG
+ 	wcrpg_test_play_mode = 1;
+ #endif
+ 	/* Check for test play mode */
+-	if(!strncmp(wcrpg_root,wcrpg_test_play_command,8))
+-	{
+-		wcrpg_test_play_mode = 1;
+-		wclog_write(wcrpg_log,"Running directly from IDE (Editor)");
+-		wclog_enter(wcrpg_log);
+-		wcrpg_root = "";
+-	}
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[5]");
++	//if(!strncmp(wcrpg_root,wcrpg_test_play_command,8))
++	//{
++	//	wcrpg_test_play_mode = 1;
++	//	wclog_write(wcrpg_log,"Running directly from IDE (Editor)");
++	//	wclog_enter(wcrpg_log);
++	//	wcrpg_root = "";
++	//}
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[6]");
+ 	/* Identify game */
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[7]");
+ 	if(!wcrpg_identify())
+ 	{
+ 		if(!*wcrpg_root)
+@@ -541,80 +585,133 @@
+ 			wcrpg_error("No such game found in %s",wcrpg_root);
+ 		return 1;
+ 	}
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[8]");
+ 	/* Start */
+ 	if(!wcrpg_start())
+ 		return 1;
+-	if(*wcrpg_root)
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[9]");
++	/*if(*wcrpg_root)
+ 	{
+ 		wclog_write(wcrpg_log,"Working directory set to: ");
+ 		wclog_write(wcrpg_log,wcrpg_root);
+ 		wclog_enter(wcrpg_log);
+-	}
++	}*/
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[10]");
+ 	/* Index resources */
+ 	wcmaterial_prepare();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[11]");
+ 	wcdatabase_load();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[12]");
+ 	wcmaptree_load();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[13]");
+ 	wcparty_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[14]");
+ 	wcevent_start();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[15]");
+ 	wcmanage_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[16]");
+ 	wccommand_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[17]");
+ 	wcguibuild_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[18]");
+ 	wcpicture_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[19]");
+ 	wcmove_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[20]");
+ 	wcsave_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[21]");
+ 	wcsavemenu_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[22]");
+ 	wcheroplate_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[23]");
+ 	wcstatusmenu_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[24]");
+ 	wcfx_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[25]");
+ 	wcperform_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[26]");
+ 	wchero_validate_all_equipment();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[27]");
+ 	wcmetric_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[28]");
+ 	wcbattle_set_system(WCBATTLE_ATB_REMIX);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[29]");
+ 	wctrans_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[30]");
+ 	wcmessage_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[31]");
+ 	wcpopnum_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[32]");
+ 	wctimer_init();
+-	wcscreenshot_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[33]");
++	//wcscreenshot_init();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "init_[34]");
+ 	/* Run */
+-	while(wcrpg_handle())
+-	{
++	return 0;
++}
++
++void render_(){
+ 		/* Get input */
+-		wcinput_handle();
++		//wcinput_handle();
+ 		/* Run game */
+ 		wcrpg_logic_handle();
+ 		/* Handle current music */
+-		wcsound_music_handle();
++		//wcsound_music_handle();
+ 		/* Draw current scene */
+ 		wcdraw_frame();
+ 		/* End time measure */
+ 		wcrpg_time_end();
+ 		/* Measure performance */
+-		wcperform_handle();
+-	}
++		//wcperform_handle();
++}
++
++void destroy_(){
+ 	/* End */
+ 	wcpopnum_exit();
+ 	wcmessage_exit();
+ 	wctrans_exit();
+-	wcmetric_exit();
++	//wcmetric_exit();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[1]");
+ 	wcperform_exit();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[2]");
+ 	wcfx_exit();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[3]");
+ 	wcstatusmenu_exit();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[4]");
+ 	wcheroplate_exit();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[5]");
+ 	wcsave_exit();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[6]");
+ 	wcmove_exit();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[7]");
+ 	wcpicture_exit();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[8]");
+ 	wcguibuild_exit();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[9]");
+ 	wcmanage_exit();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[10]");
+ 	wcparty_exit();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[11]");
+ 	wcrun_end();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[12]");
+ 	wcwindow_clear_faceset();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[13]");
+ 	wcdialog_erase_face();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[14]");
+ 	wcevent_end();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[15]");
+ 	wcmaptree_free();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[16]");
+ 	wclevel_free();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[17]");
+ 	wcmaterial_close();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[18]");
+ 	wcrpg_end();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[19]");
+ 	/* Close log */
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "destroy_[20]");
+ 	wclog_close(wcrpg_log);
+-	return 0;
++	//fazer o q =/
++	wcheroplate_exit();
++
+ }
+\ No newline at end of file
+Index: wcrpg.h
+===================================================================
+--- wcrpg.h	(revision 274)
++++ wcrpg.h	(working copy)
+@@ -2,7 +2,7 @@
+ #define WCRPG_H
+ 
+ /* Includes */
+-#include <windows.h>
++////#include <windows.h>
+ #include "wclog.h"
+ #include "wctext.h"
+ 
+@@ -44,7 +44,8 @@
+ /*
+ 	Returns the handle to instance for this program.
+ */
+-extern HINSTANCE wcrpg_get_instance();
++//extern HINSTANCE wcrpg_get_instance();
++extern int wcrpg_get_instance();
+ 
+ /*
+ 	Returns the system font
+@@ -126,4 +127,10 @@
+ */
+ extern void wcrpg_set_game_speed(float spd);
+ 
++extern int init_();
++
++extern void render_();
++
++extern void destroy_();
++
+ #endif
+\ No newline at end of file
+Index: wcrun.cpp
+===================================================================
+--- wcrun.cpp	(revision 274)
++++ wcrun.cpp	(working copy)
+@@ -15,6 +15,9 @@
+ #include "wcmanage.h"
+ #include "wcsaveio.h"
+ 
++#include <string>
++
++
+ /* Globals */
+ rpgevent *wcrun_bridge_event = 0;
+ 
+Index: wcsave.cpp
+===================================================================
+--- wcsave.cpp	(revision 274)
++++ wcsave.cpp	(working copy)
+@@ -3,7 +3,7 @@
+ */
+ 
+ /* Includes */
+-#include <windows.h>
++//#include <windows.h>
+ #include <memory.h>
+ #include <stdio.h>
+ #include "wcsave.h"
+@@ -25,12 +25,14 @@
+ #include "wcmove.h"
+ #include "wcsystem.h"
+ 
++#include <string.h>
++
+ /* Globals */
+ savetag wcsave_tags[WCSAVE_SLOTS];
+-char wcsave_home[MAX_PATH];
+-char wcsave_base[MAX_PATH];
+-char wcsave_game_base[MAX_PATH];
+-char wcsave_file[MAX_PATH];
++char wcsave_home[260];
++char wcsave_base[260];
++char wcsave_game_base[260];
++char wcsave_file[260];
+ int wcsave_loaded_game = 0; /* Has a game been loaded? */
+ int wcsave_last_file = 0; /* Last file access */
+ int wcsave_allowed = 1; /* Is saving allowed? */
+@@ -72,83 +74,83 @@
+ /* Does this dir exist? */
+ int wcsave_dir_exist(char *dir)
+ {
+-	/* This isn't a dir */
+-	if(GetFileAttributesA(dir) == INVALID_FILE_ATTRIBUTES)
+-		return 0;
+-	/* This file exists */
+-	return 1;
++	///* This isn't a dir */
++	//if(GetFileAttributesA(dir) == INVALID_FILE_ATTRIBUTES)
++	//	return 0;
++	///* This file exists */
++	//return 1;
+ }
+ 
+ /* Try making a dir */
+ int wcsave_dir_create(char *dir)
+ {
+ 	/* Return result of creation */
+-	return CreateDirectoryA(dir,NULL);
++	//return CreateDirectoryA(dir,NULL);
+ }
+ 
+ /* Initializer */
+ void wcsave_init()
+ {
+-	int i;
+-	char buffer[MAX_PATH];
+-	/* Wipe */
+-	memset(wcsave_tags,0,sizeof(wcsave_tags));
+-	memset(wcsave_base,0,sizeof(wcsave_base));
+-	memset(wcsave_home,0,sizeof(wcsave_home));
+-	memset(wcsave_game_base,0,sizeof(wcsave_game_base));
+-	memset(wcsave_file,0,sizeof(wcsave_file));
+-	memset(buffer,0,sizeof(buffer));
+-	/* Load home dir */
+-	GetEnvironmentVariableA("APPDATA",wcsave_home,MAX_PATH);
+-	/* Make base */
+-	sprintf_s(wcsave_base,"%s\\%s\\",wcsave_home,"wcrpg");
+-	/* Print to log */
+-	wclog_write(wcrpg_get_log(),"Save directory: ");
+-	wclog_write(wcrpg_get_log(),wcsave_base);
+-	wclog_enter(wcrpg_get_log());
+-	/* Create this directory if it does not exist */
+-	if(!wcsave_dir_exist(wcsave_base))
+-	{
+-		/* Create it, then */
+-		if(!wcsave_dir_create(wcsave_base))
+-		{
+-			/* Error */
+-			wcrpg_error("Could not create save directory (%s)",wcsave_base);
+-			return;
+-		}
+-		/* Log it */
+-		wclog_write(wcrpg_get_log(),"Save directory created.");
+-		wclog_enter(wcrpg_get_log());
+-	}
+-	/* Now the directory exists for sure, whether it was there from before or not */
+-	/* Now, check for a folder related to the game in particular */
+-	sprintf_s(buffer,sizeof(buffer),"%s",wcrpg_get_title());
+-	for(i = 0;i < sizeof(buffer);i++)
+-	{
+-		if(buffer[i] == ':' || buffer[i] == '*' || buffer[i] == '"' || buffer[i] == '|' || buffer[i] == '/' || buffer[i] == '\\' || buffer[i] == '?' || buffer[i] == '<' || buffer[i] == '>')
+-			buffer[i] = '-';
+-	}
+-	sprintf_s(wcsave_game_base,"%s%s\\",wcsave_base,buffer);
+-	/* Log this */
+-	wclog_write(wcrpg_get_log(),"Game save directory: ");
+-	wclog_write(wcrpg_get_log(),wcsave_game_base);
+-	wclog_enter(wcrpg_get_log());
+-	/* Create this directory if it does not exist */
+-	if(!wcsave_dir_exist(wcsave_game_base))
+-	{
+-		/* Create it, then */
+-		if(!wcsave_dir_create(wcsave_game_base))
+-		{
+-			/* Error */
+-			wcrpg_error("Could not create save directory (%s)",wcsave_game_base);
+-			return;
+-		}
+-		/* Log it */
+-		wclog_write(wcrpg_get_log(),"Game save directory created.");
+-		wclog_enter(wcrpg_get_log());
+-	}
+-	/* Catalog */
+-	wcsave_load_tags();
++	//int i;
++	//char buffer[260];
++	///* Wipe */
++	//memset(wcsave_tags,0,sizeof(wcsave_tags));
++	//memset(wcsave_base,0,sizeof(wcsave_base));
++	//memset(wcsave_home,0,sizeof(wcsave_home));
++	//memset(wcsave_game_base,0,sizeof(wcsave_game_base));
++	//memset(wcsave_file,0,sizeof(wcsave_file));
++	//memset(buffer,0,sizeof(buffer));
++	///* Load home dir */
++	//GetEnvironmentVariableA("APPDATA",wcsave_home,260);
++	///* Make base */
++	//sprintf_s(wcsave_base,"%s\\%s\\",wcsave_home,"wcrpg");
++	///* Print to log */
++	//wclog_write(wcrpg_get_log(),"Save directory: ");
++	//wclog_write(wcrpg_get_log(),wcsave_base);
++	//wclog_enter(wcrpg_get_log());
++	///* Create this directory if it does not exist */
++	//if(!wcsave_dir_exist(wcsave_base))
++	//{
++	//	/* Create it, then */
++	//	if(!wcsave_dir_create(wcsave_base))
++	//	{
++	//		/* Error */
++	//		wcrpg_error("Could not create save directory (%s)",wcsave_base);
++	//		return;
++	//	}
++	//	/* Log it */
++	//	wclog_write(wcrpg_get_log(),"Save directory created.");
++	//	wclog_enter(wcrpg_get_log());
++	//}
++	///* Now the directory exists for sure, whether it was there from before or not */
++	///* Now, check for a folder related to the game in particular */
++	//sprintf_s(buffer,sizeof(buffer),"%s",wcrpg_get_title());
++	//for(i = 0;i < sizeof(buffer);i++)
++	//{
++	//	if(buffer[i] == ':' || buffer[i] == '*' || buffer[i] == '"' || buffer[i] == '|' || buffer[i] == '/' || buffer[i] == '\\' || buffer[i] == '?' || buffer[i] == '<' || buffer[i] == '>')
++	//		buffer[i] = '-';
++	//}
++	//sprintf_s(wcsave_game_base,"%s%s\\",wcsave_base,buffer);
++	///* Log this */
++	//wclog_write(wcrpg_get_log(),"Game save directory: ");
++	//wclog_write(wcrpg_get_log(),wcsave_game_base);
++	//wclog_enter(wcrpg_get_log());
++	///* Create this directory if it does not exist */
++	//if(!wcsave_dir_exist(wcsave_game_base))
++	//{
++	//	/* Create it, then */
++	//	if(!wcsave_dir_create(wcsave_game_base))
++	//	{
++	//		/* Error */
++	//		wcrpg_error("Could not create save directory (%s)",wcsave_game_base);
++	//		return;
++	//	}
++	//	/* Log it */
++	//	wclog_write(wcrpg_get_log(),"Game save directory created.");
++	//	wclog_enter(wcrpg_get_log());
++	//}
++	///* Catalog */
++	//wcsave_load_tags();
+ }
+ 
+ /* Releaser */
+@@ -179,7 +181,7 @@
+ {
+ 	/* Reset and make */
+ 	memset(wcsave_file,0,sizeof(wcsave_file));
+-	sprintf_s(wcsave_file,"%ssave%d.sav",wcsave_game_base,slot);
++	sprintf(wcsave_file,"%ssave%d.sav",wcsave_game_base,slot);
+ 	return wcsave_file;
+ }
+ 
+@@ -188,7 +190,7 @@
+ {
+ 	/* Reset and make */
+ 	memset(wcsave_file,0,sizeof(wcsave_file));
+-	sprintf_s(wcsave_file,"%ssaveinfo.sav",wcsave_game_base);
++	sprintf(wcsave_file,"%ssaveinfo.sav",wcsave_game_base);
+ 	return wcsave_file;
+ }
+ 
+@@ -231,7 +233,7 @@
+ 	else
+ 		wcsave_tags[slot].leadername = 0;
+ 	/* Now write to disk */
+-	fopen_s(&f,wcsave_get_tag_file(),"wb");
++	fopen(wcsave_get_tag_file(),"wb");
+ 	for(i = 0;i < WCSAVE_SLOTS;i++)
+ 	{
+ 		wcsaveio_start(f);
+@@ -260,7 +262,7 @@
+ 	FILE *f;
+ 	int i,j;
+ 	/* Open */
+-	fopen_s(&f,wcsave_get_tag_file(),"rb");
++	fopen(wcsave_get_tag_file(),"rb");
+ 	/* Doesn't exist? */
+ 	if(!f)
+ 	{
+@@ -407,7 +409,7 @@
+ 	wcsave_last_file = slot;
+ 	wcsave_tag(slot);
+ 	/* Open channel */
+-	fopen_s(&f,wcsave_get_file(slot),"wb");
++	fopen(wcsave_get_file(slot),"wb");
+ 	/* Save header */
+ 	wcsave_save_header(f);
+ 	/* Save all data */
+@@ -435,7 +437,7 @@
+ 	/* Save tags */
+ 	wcsave_loaded_game = 1;
+ 	/* Open channel */
+-	fopen_s(&f,wcsave_get_file(slot),"rb");
++	fopen(wcsave_get_file(slot),"rb");
+ 	/* Load header */
+ 	wcsave_load_header(f);
+ 	/* Load all data */
+Index: wcsaveio.cpp
+===================================================================
+--- wcsaveio.cpp	(revision 274)
++++ wcsaveio.cpp	(working copy)
+@@ -34,8 +34,8 @@
+ 	/* Allocate write buffer */
+ 	b = (unsigned char*)malloc(len);
+ 	/* Load it */
+-	for(i = 0;i < len;i++)
+-		b[i] = (unsigned char)wcarray_get(wcsaveio_buffer,i);
++	//for(i = 0;i < len;i++)
++	//	b[i] = (unsigned char)wcarray_get(wcsaveio_buffer,i);
+ 	/* Flush it */
+ 	fwrite(b,1,len,wcsaveio_file);
+ 	/* Done, erase data */
+Index: wcsavemenu.cpp
+===================================================================
+--- wcsavemenu.cpp	(revision 274)
++++ wcsavemenu.cpp	(working copy)
+@@ -18,6 +18,10 @@
+ #include "wcsystem.h"
+ #include "wcplayer.h"
+ 
++#include <string.h>
++
++#include <android\log.h>
++
+ /* Globals */
+ texture *wcsavemenu_faces[WCSAVE_SLOTS*MAX_PARTY_SIZE]; /* All those faces */
+ hero *wcsavemenu_heroes[WCSAVE_SLOTS*MAX_PARTY_SIZE]; /* All those heroes */
+@@ -37,6 +41,7 @@
+ /* Open save menu */
+ void wcsavemenu_open(menu *m,int loadin)
+ {
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsavemenu_open");
+ 	/* Refresh and open */
+ 	wcsavemenu_refresh(loadin);
+ 	wcsavemenu_on = 1;
+@@ -47,6 +52,7 @@
+ /* Close save menu */
+ void wcsavemenu_close()
+ {
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsavemenu_close");
+ 	int i;
+ 	/* Free resources */
+ 	for(i = 0;i < WCSAVE_SLOTS*MAX_PARTY_SIZE;i++)
+@@ -158,7 +164,7 @@
+ 				wcsavemenu_file_label->draw();
+ 			}
+ 			/* Draw number */
+-			sprintf_s(buffer,sizeof(buffer),"%d",i+1);
++			sprintf(buffer,"%d",i+1);
+ 			wcwindow_draw_text(8+32+8+WCRPG_WIDTH-WCSAVEMENU_WIDTH,ybase+4,0,buffer);
+ 			/* Draw leader's name */
+ 			if(wcsavemenu_leader_name[i])
+Index: wcscreenshot.cpp
+===================================================================
+--- wcscreenshot.cpp	(revision 274)
++++ wcscreenshot.cpp	(working copy)
+@@ -3,7 +3,7 @@
+ */
+ 
+ /* Includes */
+-#include <windows.h>
++//#include <windows.h>
+ #include <stdio.h>
+ #include "wcscreenshot.h"
+ #include "wcsave.h"
+@@ -36,7 +36,7 @@
+ /* Load screen catalog */
+ void wcscreenshot_load_catalog()
+ {
+-	char buffer[MAX_PATH];
++	char buffer[260];
+ 	FILE *shcat;
+ 	/* Attempt to load screen catalog */
+ 	memset(buffer,0,sizeof(buffer));
+@@ -57,7 +57,7 @@
+ /* Save screen catalog */
+ void wcscreenshot_save_catalog()
+ {
+-	char buffer[MAX_PATH];
++	char buffer[260];
+ 	FILE *shcat;
+ 	/* Attempt to save screen catalog */
+ 	memset(buffer,0,sizeof(buffer));
+@@ -87,7 +87,7 @@
+ /* Save a screenshot */
+ void wcscreenshot_snap()
+ {
+-	char buffer[MAX_PATH];
++	char buffer[260];
+ 	image *img;
+ 	/* Snap */
+ 	img = wcdraw_image_screen();
+Index: wcskill.cpp
+===================================================================
+--- wcskill.cpp	(revision 274)
++++ wcskill.cpp	(working copy)
+@@ -7,6 +7,8 @@
+ #include "wctype.h"
+ #include "wcrpg.h"
+ 
++#include <stdlib.h>
++
+ /* Globals */
+ table *skill_table = 0;
+ arraylist skills = 0;
+Index: wcsound.cpp
+===================================================================
+--- wcsound.cpp	(revision 274)
++++ wcsound.cpp	(working copy)
+@@ -3,8 +3,8 @@
+ */
+ 
+ /* Includes */
+-#include <fmod.h>
+-#include <fmod.hpp>
++//#include <fmod.h> 
++//#include <fmod.hpp>
+ #include <memory.h>
+ #include <malloc.h>
+ #include <string.h>
+@@ -19,25 +19,40 @@
+ typedef struct
+ {
+ 	char *filename;
+-	FMOD::Sound *snd;
++	//FMOD::Sound *snd;
++	int snd;
+ }sound_entry;
+ 
+ /* Globals */
+ char *fmod_source_file = 0;
+-FMOD::System *fmod_system;
+-FMOD::System *fmod_sound_system;
++
++//FMOD::System *fmod_system;
++//FMOD::System *fmod_sound_system;
++int fmod_system;
++int fmod_sound_system;
++
+ unsigned int fmod_version;
+-FMOD::Sound *fmod_music_sound;
+-FMOD::Channel *fmod_music_channel;
++
++//FMOD::Sound *fmod_music_sound;
++//FMOD::Channel *fmod_music_channel;
++int fmod_music_sound;
++int fmod_music_channel;
++
+ int fmod_music_volume = 100;
+ int fmod_music_tempo = 100;
+ int fmod_music_balance = 50;
+ int fmod_music_active = 0;
+ int fmod_music_leadin = 0;
+ float fmod_music_frequency;
+-FMOD_SOUND_TYPE fmod_music_type;
+-FMOD_REVERB_PROPERTIES fmod_music_reverb = FMOD_PRESET_CONCERTHALL;
+-FMOD_REVERB_PROPERTIES fmod_no_music_reverb = FMOD_PRESET_OFF;
++
++//FMOD_SOUND_TYPE fmod_music_type;
++//FMOD_REVERB_PROPERTIES fmod_music_reverb = FMOD_PRESET_CONCERTHALL;
++//FMOD_REVERB_PROPERTIES fmod_no_music_reverb = FMOD_PRESET_OFF;
++int fmod_music_type;
++int fmod_music_reverb = 0;
++int fmod_no_music_reverb = 0;
++
++
+ arraylist fmod_sound_list = 0;
+ int fmod_channel_rotate = 0;
+ float fmod_slide_start = 1.0f;
+@@ -86,7 +101,7 @@
+ 	se = (sound_entry*)v;
+ 	free(se->filename);
+ 	/* Release FMOD portion */
+-	se->snd->release();
++	//se->snd->release();
+ }
+ 
+ /* Source file */
+@@ -99,51 +114,51 @@
+ int wcsound_start()
+ {
+ 	/* Create the system */
+-	if(FMOD::System_Create(&fmod_system) != FMOD_OK)
+-	{
+-		wcrpg_error("Could not create FMOD system");
+-		return 0;
+-	}
+-	if(FMOD::System_Create(&fmod_sound_system) != FMOD_OK)
+-	{
+-		wcrpg_error("Could not create FMOD sound system");
+-		return 0;
+-	}
+-	/* Quiery version */
+-	if(fmod_system->getVersion(&fmod_version) == FMOD_OK)
+-	{
+-		/* Check error */
+-		if(fmod_version < FMOD_VERSION)
+-		{
+-			wcrpg_error("Improper FMOD version (%d)",fmod_version);
+-			return 0;
+-		}
+-		/* Announce version */
+-		wclog_write(wcrpg_get_log(),"FMOD version ");
+-		wclog_write(wcrpg_get_log(),fmod_version);
+-		wclog_write(wcrpg_get_log()," activated.");
+-		wclog_enter(wcrpg_get_log());
+-	}
+-	else
+-	{
+-		/* Announce strangeness */
+-		wclog_write(wcrpg_get_log(),"Could not determine FMOD version.");
+-		wclog_enter(wcrpg_get_log());
+-	}
+-	/* Initialize system */
+-	if(fmod_system->init(4,FMOD_INIT_NORMAL,0) != FMOD_OK)
+-	{
+-		wcrpg_error("Could not initialize FMOD system");
+-		return 0;
+-	}
+-	if(fmod_sound_system->init(WCSOUND_MAX_SOUNDS,FMOD_INIT_NORMAL,0) != FMOD_OK)
+-	{
+-		wcrpg_error("Could not initialize FMOD sound system");
+-		return 0;
+-	}
+-	/* Make list */
+-	fmod_sound_list = wcarray_new();
+-	wcarray_set_clean(fmod_sound_list,wcsound_delete_sound_entry);
++	//if(FMOD::System_Create(&fmod_system) != FMOD_OK)
++	//{
++	//	wcrpg_error("Could not create FMOD system");
++	//	return 0;
++	//}
++	//if(FMOD::System_Create(&fmod_sound_system) != FMOD_OK)
++	//{
++	//	wcrpg_error("Could not create FMOD sound system");
++	//	return 0;
++	//}
++	///* Quiery version */
++	//if(fmod_system->getVersion(&fmod_version) == FMOD_OK)
++	//{
++	//	/* Check error */
++	//	if(fmod_version < FMOD_VERSION)
++	//	{
++	//		wcrpg_error("Improper FMOD version (%d)",fmod_version);
++	//		return 0;
++	//	}
++	//	/* Announce version */
++	//	wclog_write(wcrpg_get_log(),"FMOD version ");
++	//	wclog_write(wcrpg_get_log(),fmod_version);
++	//	wclog_write(wcrpg_get_log()," activated.");
++	//	wclog_enter(wcrpg_get_log());
++	//}
++	//else
++	//{
++	//	/* Announce strangeness */
++	//	wclog_write(wcrpg_get_log(),"Could not determine FMOD version.");
++	//	wclog_enter(wcrpg_get_log());
++	//}
++	///* Initialize system */
++	//if(fmod_system->init(4,FMOD_INIT_NORMAL,0) != FMOD_OK)
++	//{
++	//	wcrpg_error("Could not initialize FMOD system");
++	//	return 0;
++	//}
++	//if(fmod_sound_system->init(WCSOUND_MAX_SOUNDS,FMOD_INIT_NORMAL,0) != FMOD_OK)
++	//{
++	//	wcrpg_error("Could not initialize FMOD sound system");
++	//	return 0;
++	//}
++	///* Make list */
++	//fmod_sound_list = wcarray_new();
++	//wcarray_set_clean(fmod_sound_list,wcsound_delete_sound_entry);
+ 	return 1;
+ }
+ 
+@@ -154,194 +169,194 @@
+ 	wcarray_delete(fmod_sound_list);
+ 	/* Release fmod */
+ 	free(fmod_source_file);
+-	fmod_sound_system->release();
+-	fmod_system->release();
++	//fmod_sound_system->release();
++	//fmod_system->release();
+ }
+ 
+ /* Adjusts the currently playing song */
+ void wcsound_music_adjust(char *name)
+ {
+-	float bl;
+-	/* Can't adjust if not active */
+-	if(!fmod_music_active)
+-		return;
+-	/* Set the volume */
+-	if(fmod_music_channel->setVolume((float)(fmod_music_volume)/100.0f) != FMOD_OK)
+-	{
+-		/* Come on */
+-		wcrpg_error("Could not adjust the volume of %s",name);
+-		return;
+-	}
+-	/* Set the tempo */
+-	fmod_music_sound->getFormat(&fmod_music_type,0,0,0);
+-	if(fmod_music_type == FMOD_SOUND_TYPE_MIDI)
+-	{
+-		/* Set the reverb */
+-		if(fmod_system->setReverbProperties(&fmod_music_reverb) != FMOD_OK)
+-		{
+-			/* Can't do this */
+-			wcrpg_error("Could not enable reverb effect");
+-			return;
+-		}
+-		/* Actually speed up or down */
+-		if(fmod_music_sound->setMusicSpeed((float)(fmod_music_tempo)/100.0f) != FMOD_OK)
+-		{
+-			/* No, really? */
+-			wcrpg_error("Could not adjust the MIDI tempo of %s",name);
+-			return;
+-		}
+-	}
+-	else
+-	{
+-		/* Set the reverb */
+-		if(fmod_system->setReverbProperties(&fmod_no_music_reverb) != FMOD_OK)
+-		{
+-			/* Can't do this */
+-			wcrpg_error("Could not disable reverb effect");
+-			return;
+-		}
+-		/* Do a very annoying music HZ shift */
+-		fmod_music_channel->getFrequency(&fmod_music_frequency);
+-		if(fmod_music_channel->setFrequency(fmod_music_frequency*((float)(fmod_music_tempo)/100.0f)) != FMOD_OK)
+-		{
+-			/* You've got to be kidding me */
+-			wcrpg_error("Could not adjust the tempo of %s",name);
+-			return;
+-		}
+-	}
+-	/* Adjust its balance */
+-	bl = (float)((fmod_music_balance-50)/50.0f);
+-	if(fmod_music_channel->setPan(bl) != FMOD_OK)
+-	{
+-		wcrpg_error("Could not set balance of %s",name);
+-		return;
+-	}
++	//float bl;
++	///* Can't adjust if not active */
++	//if(!fmod_music_active)
++	//	return;
++	///* Set the volume */
++	//if(fmod_music_channel->setVolume((float)(fmod_music_volume)/100.0f) != FMOD_OK)
++	//{
++	//	/* Come on */
++	//	wcrpg_error("Could not adjust the volume of %s",name);
++	//	return;
++	//}
++	///* Set the tempo */
++	//fmod_music_sound->getFormat(&fmod_music_type,0,0,0);
++	//if(fmod_music_type == FMOD_SOUND_TYPE_MIDI)
++	//{
++	//	/* Set the reverb */
++	//	if(fmod_system->setReverbProperties(&fmod_music_reverb) != FMOD_OK)
++	//	{
++	//		/* Can't do this */
++	//		wcrpg_error("Could not enable reverb effect");
++	//		return;
++	//	}
++	//	/* Actually speed up or down */
++	//	if(fmod_music_sound->setMusicSpeed((float)(fmod_music_tempo)/100.0f) != FMOD_OK)
++	//	{
++	//		/* No, really? */
++	//		wcrpg_error("Could not adjust the MIDI tempo of %s",name);
++	//		return;
++	//	}
++	//}
++	//else
++	//{
++	//	/* Set the reverb */
++	//	if(fmod_system->setReverbProperties(&fmod_no_music_reverb) != FMOD_OK)
++	//	{
++	//		/* Can't do this */
++	//		wcrpg_error("Could not disable reverb effect");
++	//		return;
++	//	}
++	//	/* Do a very annoying music HZ shift */
++	//	fmod_music_channel->getFrequency(&fmod_music_frequency);
++	//	if(fmod_music_channel->setFrequency(fmod_music_frequency*((float)(fmod_music_tempo)/100.0f)) != FMOD_OK)
++	//	{
++	//		/* You've got to be kidding me */
++	//		wcrpg_error("Could not adjust the tempo of %s",name);
++	//		return;
++	//	}
++	//}
++	///* Adjust its balance */
++	//bl = (float)((fmod_music_balance-50)/50.0f);
++	//if(fmod_music_channel->setPan(bl) != FMOD_OK)
++	//{
++	//	wcrpg_error("Could not set balance of %s",name);
++	//	return;
++	//}
+ }
+ 
+ /* Starts playing a music file */
+ int wcsound_music_play(char *name)
+ {
+-	FMOD_CREATESOUNDEXINFO info;
+-	char *fname;
+-	/* Compare names */
+-	if(fmod_source_file)
+-	{
+-		if(!strcmp(name,fmod_source_file)) /* Song already playing */
+-		{
+-			wclog_write(wcrpg_get_log(),"Continuing to play ");
+-			wclog_write(wcrpg_get_log(),name);
+-			wclog_write(wcrpg_get_log(),"...");
+-			wclog_enter(wcrpg_get_log());
+-			return 0;
+-		}
+-		else
+-		{
+-			wclog_write(wcrpg_get_log(),name);
+-			wclog_write(wcrpg_get_log()," is different from ");
+-			wclog_write(wcrpg_get_log(),fmod_source_file);
+-			wclog_enter(wcrpg_get_log());
+-		}
+-	}
+-	/* Copy names */
+-	free(fmod_source_file);
+-	fmod_source_file = wcrpg_string_clone(name);
+-	/* Stop the music instead? */
+-	if(!strcmp(name,"(OFF)"))
+-	{
+-		wcsound_music_stop();
+-		return 1;
+-	}
+-	/* Request */
+-	fname = wcmaterial_request(MATERIAL_MUSIC,name);
+-	wclog_write(wcrpg_get_log(),"Loading ");
+-	wclog_write(wcrpg_get_log(),fname);
+-	wclog_enter(wcrpg_get_log());
+-	/* Prepare info */
+-	memset(&info,0,sizeof(info));
+-	info.cbsize = sizeof(info);
+-	/* Stop old music */
+-	if(fmod_music_sound)
+-		wcsound_music_stop();
+-	/* Attempt to play music */
+-	if(fmod_system->createSound(wcmaterial_request(MATERIAL_MUSIC,name),FMOD_SOFTWARE|FMOD_CREATESTREAM,&info,&fmod_music_sound) != FMOD_OK)
+-	{
+-		/* Bah */
+-		wcrpg_error("Could not load %s",name);
+-		return 0;
+-	}
+-	if(fmod_system->playSound((FMOD_CHANNELINDEX)0,fmod_music_sound,1,&fmod_music_channel) != FMOD_OK)
+-	{
+-		/* Bleh */
+-		wcrpg_error("Could not prepare %s",name);
+-		return 0;
+-	}
+-	/* Make it loop */
+-	if(fmod_music_sound->setMode(FMOD_LOOP_NORMAL) != FMOD_OK)
+-	{
+-		/* Gah! */
+-		wcrpg_error("Could not set mode for %s",name);
+-		return 0;
+-	}
+-	/* Active */
+-	fmod_music_active = 1;
+-	/* Adjust the music */
+-	wcsound_music_adjust(name);
+-	/* Fire! */
+-	if(fmod_music_channel->setPaused(0) != FMOD_OK)
+-	{
+-		/* No! */
+-		wcrpg_error("Could not play %s",name);
+-		return 0;
+-	}
+-	/* Announce */
+-	wclog_write(wcrpg_get_log(),"Now playing ");
+-	wclog_write(wcrpg_get_log(),name);
+-	wclog_enter(wcrpg_get_log());
++	//FMOD_CREATESOUNDEXINFO info;
++	//char *fname;
++	///* Compare names */
++	//if(fmod_source_file)
++	//{
++	//	if(!strcmp(name,fmod_source_file)) /* Song already playing */
++	//	{
++	//		wclog_write(wcrpg_get_log(),"Continuing to play ");
++	//		wclog_write(wcrpg_get_log(),name);
++	//		wclog_write(wcrpg_get_log(),"...");
++	//		wclog_enter(wcrpg_get_log());
++	//		return 0;
++	//	}
++	//	else
++	//	{
++	//		wclog_write(wcrpg_get_log(),name);
++	//		wclog_write(wcrpg_get_log()," is different from ");
++	//		wclog_write(wcrpg_get_log(),fmod_source_file);
++	//		wclog_enter(wcrpg_get_log());
++	//	}
++	//}
++	///* Copy names */
++	//free(fmod_source_file);
++	//fmod_source_file = wcrpg_string_clone(name);
++	///* Stop the music instead? */
++	//if(!strcmp(name,"(OFF)"))
++	//{
++	//	wcsound_music_stop();
++	//	return 1;
++	//}
++	///* Request */
++	//fname = wcmaterial_request(MATERIAL_MUSIC,name);
++	//wclog_write(wcrpg_get_log(),"Loading ");
++	//wclog_write(wcrpg_get_log(),fname);
++	//wclog_enter(wcrpg_get_log());
++	///* Prepare info */
++	//memset(&info,0,sizeof(info));
++	//info.cbsize = sizeof(info);
++	///* Stop old music */
++	//if(fmod_music_sound)
++	//	wcsound_music_stop();
++	///* Attempt to play music */
++	//if(fmod_system->createSound(wcmaterial_request(MATERIAL_MUSIC,name),FMOD_SOFTWARE|FMOD_CREATESTREAM,&info,&fmod_music_sound) != FMOD_OK)
++	//{
++	//	/* Bah */
++	//	wcrpg_error("Could not load %s",name);
++	//	return 0;
++	//}
++	//if(fmod_system->playSound((FMOD_CHANNELINDEX)0,fmod_music_sound,1,&fmod_music_channel) != FMOD_OK)
++	//{
++	//	/* Bleh */
++	//	wcrpg_error("Could not prepare %s",name);
++	//	return 0;
++	//}
++	///* Make it loop */
++	//if(fmod_music_sound->setMode(FMOD_LOOP_NORMAL) != FMOD_OK)
++	//{
++	//	/* Gah! */
++	//	wcrpg_error("Could not set mode for %s",name);
++	//	return 0;
++	//}
++	///* Active */
++	//fmod_music_active = 1;
++	///* Adjust the music */
++	//wcsound_music_adjust(name);
++	///* Fire! */
++	//if(fmod_music_channel->setPaused(0) != FMOD_OK)
++	//{
++	//	/* No! */
++	//	wcrpg_error("Could not play %s",name);
++	//	return 0;
++	//}
++	///* Announce */
++	//wclog_write(wcrpg_get_log(),"Now playing ");
++	//wclog_write(wcrpg_get_log(),name);
++	//wclog_enter(wcrpg_get_log());
+ 	return 1;
+ }
+ 
+ /* Handles slides and things */
+ void wcsound_music_handle()
+ {
+-	float dv,cv;
+-	/* Songs must be playing */
+-	if(!fmod_music_active)
+-		return;
+-	/* Figure out current volume */
+-	dv = fmod_slide_end-fmod_slide_start;
+-	cv = fmod_slide_start+dv*fmod_slide_step;
+-	/* Slide the volume */
+-	if(fmod_music_channel->setVolume((float)(fmod_music_volume)/100.0f*cv) != FMOD_OK)
+-	{
+-		/* Come on */
+-		wcrpg_error("Could not slide the volume of current song");
+-		return;
+-	}
+-	/* Advance step */
+-	fmod_slide_step += wcrpg_get_time_step()*fmod_slide_speed;
++	//float dv,cv;
++	///* Songs must be playing */
++	//if(!fmod_music_active)
++	//	return;
++	///* Figure out current volume */
++	//dv = fmod_slide_end-fmod_slide_start;
++	//cv = fmod_slide_start+dv*fmod_slide_step;
++	///* Slide the volume */
++	//if(fmod_music_channel->setVolume((float)(fmod_music_volume)/100.0f*cv) != FMOD_OK)
++	//{
++	//	/* Come on */
++	//	wcrpg_error("Could not slide the volume of current song");
++	//	return;
++	//}
++	///* Advance step */
++	//fmod_slide_step += wcrpg_get_time_step()*fmod_slide_speed;
+ }
+ 
+ /* Play music */
+ void wcsound_music_play(music *m)
+ {
+ 	/* Do nothing */
+-	if(!m)
+-		return;
+-	/* Memorize */
+-	wcsound_current_song = m;
+-	/* Play music */
+-	fmod_music_volume = m->get_volume();
+-	fmod_music_tempo = m->get_tempo();
+-	fmod_music_balance = m->get_balance();
+-	/* Adjust before if continuing same music with different settings */
+-	wcsound_music_adjust(m->get_file());
+-	/* Set leadin */
+-	if(m->get_leadin() != 0)
+-		wcsound_set_volume_slide(0.0f,1.0f,m->get_leadin());
+-	else
+-		wcsound_set_volume_slide(1.0f,1.0f,0);
+-	fmod_music_leadin = m->get_leadin();
+-	wcsound_music_play(m->get_file());
++	//if(!m)
++	//	return;
++	///* Memorize */
++	//wcsound_current_song = m;
++	///* Play music */
++	//fmod_music_volume = m->get_volume();
++	//fmod_music_tempo = m->get_tempo();
++	//fmod_music_balance = m->get_balance();
++	///* Adjust before if continuing same music with different settings */
++	//wcsound_music_adjust(m->get_file());
++	///* Set leadin */
++	//if(m->get_leadin() != 0)
++	//	wcsound_set_volume_slide(0.0f,1.0f,m->get_leadin());
++	//else
++	//	wcsound_set_volume_slide(1.0f,1.0f,0);
++	//fmod_music_leadin = m->get_leadin();
++	//wcsound_music_play(m->get_file());
+ }
+ 
+ /* Get volume */
+@@ -377,16 +392,16 @@
+ /* Stop music */
+ void wcsound_music_stop()
+ {
+-	/* Release sound */
+-	if(fmod_music_sound)
+-	{
+-		fmod_music_sound->release();
+-		fmod_music_sound = 0;
+-		/*free(fmod_source_file);
+-		fmod_source_file = 0;*/
+-	}
+-	/* Ensure end */
+-	fmod_music_active = 0;
++	///* Release sound */
++	//if(fmod_music_sound)
++	//{
++	//	fmod_music_sound->release();
++	//	fmod_music_sound = 0;
++	//	/*free(fmod_source_file);
++	//	fmod_source_file = 0;*/
++	//}
++	///* Ensure end */
++	//fmod_music_active = 0;
+ }
+ 
+ /* Create music */
+@@ -501,51 +516,51 @@
+ /* Pool sound */
+ void sound :: pool(char *f)
+ {
+-	int i;
+-	sound_entry *se;
+-	/* Stop */
+-	if(!strcmp(f,"(OFF)"))
+-		return;
+-	/* Has data? */
+-	if(data)
+-		return;
+-	/* Log */
+-	wclog_write(wcrpg_get_log(),"Pooling ");
+-	wclog_write(wcrpg_get_log(),f);
+-	wclog_write(wcrpg_get_log()," for first time use.");
+-	wclog_enter(wcrpg_get_log());
+-	/* Pools the sound */
+-	for(i = 0;i < wcarray_size(fmod_sound_list);i++)
+-	{
+-		/* Get sound */
+-		se = (sound_entry*)wcarray_get(fmod_sound_list,i);
+-		/* Sound is a match? */
+-		if(!strcmp(se->filename,filename))
+-		{
+-			/* Set */
+-			data = se;
+-			/* Log */
+-			wclog_write(wcrpg_get_log(),"Used an existing sound resource.");
+-			wclog_enter(wcrpg_get_log());
+-			return;
+-		}
+-	}
+-	/* Not found, add new */
+-	se = (sound_entry*)malloc(sizeof(sound_entry));
+-	se->filename = wcrpg_string_clone(filename);
+-	/* Create the sound */
+-	if(fmod_sound_system->createSound(wcmaterial_request(MATERIAL_SOUND,se->filename),FMOD_DEFAULT,0,&se->snd) != FMOD_OK)
+-	{
+-		wcrpg_error("Could not create sound %s",f);
+-		return;
+-	}
+-	/* Add it to the list */
+-	wcarray_add(fmod_sound_list,se);
+-	/* Now I have data */
+-	data = se;
+-	/* Done */
+-	wclog_write(wcrpg_get_log(),"Loaded the sound.");
+-	wclog_enter(wcrpg_get_log());
++	//int i;
++	//sound_entry *se;
++	///* Stop */
++	//if(!strcmp(f,"(OFF)"))
++	//	return;
++	///* Has data? */
++	//if(data)
++	//	return;
++	///* Log */
++	//wclog_write(wcrpg_get_log(),"Pooling ");
++	//wclog_write(wcrpg_get_log(),f);
++	//wclog_write(wcrpg_get_log()," for first time use.");
++	//wclog_enter(wcrpg_get_log());
++	///* Pools the sound */
++	//for(i = 0;i < wcarray_size(fmod_sound_list);i++)
++	//{
++	//	/* Get sound */
++	//	se = (sound_entry*)wcarray_get(fmod_sound_list,i);
++	//	/* Sound is a match? */
++	//	if(!strcmp(se->filename,filename))
++	//	{
++	//		/* Set */
++	//		data = se;
++	//		/* Log */
++	//		wclog_write(wcrpg_get_log(),"Used an existing sound resource.");
++	//		wclog_enter(wcrpg_get_log());
++	//		return;
++	//	}
++	//}
++	///* Not found, add new */
++	//se = (sound_entry*)malloc(sizeof(sound_entry));
++	//se->filename = wcrpg_string_clone(filename);
++	///* Create the sound */
++	//if(fmod_sound_system->createSound(wcmaterial_request(MATERIAL_SOUND,se->filename),FMOD_DEFAULT,0,&se->snd) != FMOD_OK)
++	//{
++	//	wcrpg_error("Could not create sound %s",f);
++	//	return;
++	//}
++	///* Add it to the list */
++	//wcarray_add(fmod_sound_list,se);
++	///* Now I have data */
++	//data = se;
++	///* Done */
++	//wclog_write(wcrpg_get_log(),"Loaded the sound.");
++	//wclog_enter(wcrpg_get_log());
+ }
+ 
+ /* Initialize sound */
+@@ -678,56 +693,56 @@
+ /* Play sound once */
+ void sound :: play()
+ {
+-	float hz,bl;
+-	FMOD::Channel *chan;
+-	chan = (FMOD::Channel*)ch;
+-	/* Attempt to pool */
+-	pool(filename);
+-	/* No data? */
+-	if(!data)
+-		return;
+-	/* Stop old */
+-	if(chan)
+-		chan->stop();
+-	/* Prepare the sound to play */
+-	if(fmod_sound_system->playSound((FMOD_CHANNELINDEX)fmod_channel_rotate,((sound_entry*)data)->snd,1,&chan) != FMOD_OK)
+-	{
+-		wcrpg_error("Could not play sound %s",((sound_entry*)data)->filename);
+-		return;
+-	}
+-	/* Adjust its volume */
+-	if(chan->setVolume((float)(volume)/100.0f) != FMOD_OK)
+-	{
+-		wcrpg_error("Could not set volume of sound %s",((sound_entry*)data)->filename);
+-		return;
+-	}
+-	/* Adjust its tempo */
+-	if(chan->getFrequency(&hz) != FMOD_OK)
+-	{
+-		wcrpg_error("Could not get frequency of sound %s",((sound_entry*)data)->filename);
+-		return;
+-	}
+-	hz *= (float)(tempo)/100.0f;
+-	if(chan->setFrequency(hz) != FMOD_OK)
+-	{
+-		wcrpg_error("Could not set frequency of sound %s",((sound_entry*)data)->filename);
+-		return;
+-	}
+-	/* Adjust its balance */
+-	bl = (float)((balance-50)/50.0f);
+-	if(chan->setPan(bl) != FMOD_OK)
+-	{
+-		wcrpg_error("Could not set balance of sound %s",((sound_entry*)data)->filename);
+-		return;
+-	}
+-	/* Let it go */
+-	if(chan->setPaused(0) != FMOD_OK)
+-	{
+-		wcrpg_error("Could not play sound after applying settings for sound %s",((sound_entry*)data)->filename);
+-		return;
+-	}
+-	/* Rotate */
+-	fmod_channel_rotate = (fmod_channel_rotate+1)%(WCSOUND_MAX_SOUNDS/2);
++	//float hz,bl;
++	//FMOD::Channel *chan;
++	//chan = (FMOD::Channel*)ch;
++	///* Attempt to pool */
++	//pool(filename);
++	///* No data? */
++	//if(!data)
++	//	return;
++	///* Stop old */
++	//if(chan)
++	//	chan->stop();
++	///* Prepare the sound to play */
++	//if(fmod_sound_system->playSound((FMOD_CHANNELINDEX)fmod_channel_rotate,((sound_entry*)data)->snd,1,&chan) != FMOD_OK)
++	//{
++	//	wcrpg_error("Could not play sound %s",((sound_entry*)data)->filename);
++	//	return;
++	//}
++	///* Adjust its volume */
++	//if(chan->setVolume((float)(volume)/100.0f) != FMOD_OK)
++	//{
++	//	wcrpg_error("Could not set volume of sound %s",((sound_entry*)data)->filename);
++	//	return;
++	//}
++	///* Adjust its tempo */
++	//if(chan->getFrequency(&hz) != FMOD_OK)
++	//{
++	//	wcrpg_error("Could not get frequency of sound %s",((sound_entry*)data)->filename);
++	//	return;
++	//}
++	//hz *= (float)(tempo)/100.0f;
++	//if(chan->setFrequency(hz) != FMOD_OK)
++	//{
++	//	wcrpg_error("Could not set frequency of sound %s",((sound_entry*)data)->filename);
++	//	return;
++	//}
++	///* Adjust its balance */
++	//bl = (float)((balance-50)/50.0f);
++	//if(chan->setPan(bl) != FMOD_OK)
++	//{
++	//	wcrpg_error("Could not set balance of sound %s",((sound_entry*)data)->filename);
++	//	return;
++	//}
++	///* Let it go */
++	//if(chan->setPaused(0) != FMOD_OK)
++	//{
++	//	wcrpg_error("Could not play sound after applying settings for sound %s",((sound_entry*)data)->filename);
++	//	return;
++	//}
++	///* Rotate */
++	//fmod_channel_rotate = (fmod_channel_rotate+1)%(WCSOUND_MAX_SOUNDS/2);
+ }
+ 
+ /* Get file */
+Index: wcstatusmenu.cpp
+===================================================================
+--- wcstatusmenu.cpp	(revision 274)
++++ wcstatusmenu.cpp	(working copy)
+@@ -271,17 +271,17 @@
+ 	wcstatusmenu_mana_label->draw();
+ 	wcstatusmenu_exp_label->move(bx+8,by+8+32);
+ 	wcstatusmenu_exp_label->draw();
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_health());
++	sprintf(buffer,"%d",hr->get_health());
+ 	wcwindow_draw_text(bx+48,by+8,0,buffer);
+ 	wcwindow_draw_text(bx+48+28,by+8,0,"/");
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_stat(STAT_HEALTH));
++	sprintf(buffer,"%d",hr->get_stat(STAT_HEALTH));
+ 	wcwindow_draw_text(bx+48+32+8,by+8,0,buffer);
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_mana());
++	sprintf(buffer,"%d",hr->get_mana());
+ 	wcwindow_draw_text(bx+48,by+8+16,0,buffer);
+ 	wcwindow_draw_text(bx+48+28,by+8+16,0,"/");
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_stat(STAT_MANA));
++	sprintf(buffer,"%d",hr->get_stat(STAT_MANA));
+ 	wcwindow_draw_text(bx+48+32+8,by+8+16,0,buffer);
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_exp());
++	sprintf(buffer,"%d",hr->get_exp());
+ 	wcwindow_draw_text(bx+48,by+8+32,0,buffer);
+ 	/*wcwindow_draw_text(bx+48+28,by+8+32,0,"/");
+ 	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_exp_for_next());
+@@ -313,13 +313,13 @@
+ 	wcstatusmenu_spd_label->move(bx+8,by+8+48);
+ 	wcstatusmenu_spd_label->draw();
+ 	/* Stats */
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_stat(STAT_ATTACK));
++	sprintf(buffer,"%d",hr->get_stat(STAT_ATTACK));
+ 	wcwindow_draw_text(bx+8+80,by+8,0,buffer);
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_stat(STAT_DEFENSE));
++	sprintf(buffer,"%d",hr->get_stat(STAT_DEFENSE));
+ 	wcwindow_draw_text(bx+8+80,by+8+16,0,buffer);
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_stat(STAT_POWER));
++	sprintf(buffer,"%d",hr->get_stat(STAT_POWER));
+ 	wcwindow_draw_text(bx+8+80,by+8+32,0,buffer);
+-	sprintf_s(buffer,sizeof(buffer),"%d",hr->get_stat(STAT_SPEED));
++	sprintf(buffer,"%d",hr->get_stat(STAT_SPEED));
+ 	wcwindow_draw_text(bx+8+80,by+8+48,0,buffer);
+ }
+ 
+@@ -384,13 +384,13 @@
+ 	wcstatusmenu_spd_label->move(bx+8,by+8+48);
+ 	wcstatusmenu_spd_label->draw();
+ 	/* Stats */
+-	sprintf_s(buffer,sizeof(buffer),"%d",proj_attack);
++	sprintf(buffer,"%d",proj_attack);
+ 	wcwindow_draw_text(bx+8+80,by+8,color_attack,buffer);
+-	sprintf_s(buffer,sizeof(buffer),"%d",proj_defense);
++	sprintf(buffer,"%d",proj_defense);
+ 	wcwindow_draw_text(bx+8+80,by+8+16,color_defense,buffer);
+-	sprintf_s(buffer,sizeof(buffer),"%d",proj_special);
++	sprintf(buffer,"%d",proj_special);
+ 	wcwindow_draw_text(bx+8+80,by+8+32,color_special,buffer);
+-	sprintf_s(buffer,sizeof(buffer),"%d",proj_speed);
++	sprintf(buffer,"%d",proj_speed);
+ 	wcwindow_draw_text(bx+8+80,by+8+48,color_speed,buffer);
+ }
+ 
+Index: wcsystem.cpp
+===================================================================
+--- wcsystem.cpp	(revision 274)
++++ wcsystem.cpp	(working copy)
+@@ -12,6 +12,8 @@
+ #include "wcmaterial.h"
+ #include "wcwindow.h"
+ 
++#include <android/log.h>
++
+ /* Globals */
+ char *wcsys_skiff; /* Vehicle graphic */
+ char *wcsys_ship;
+@@ -107,48 +109,57 @@
+ 	unsigned short u16menuitem;
+ 	if(code == 17)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [0]");
+ 		wcsystem_set_title_graphic(wcstr_read_file(f,len));
+ 		return 1;
+ 	}
+ 	if(code == 18)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [1]");
+ 		wcsystem_set_game_over_graphic(wcstr_read_file(f,len));
+ 		return 1;
+ 	}
+ 	if(code == 19)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [2]");
+ 		wcsystem_set_graphic(wcstr_read_file(f,len));
+ 		return 1;
+ 	}
+ 	/* Music goes here */
+ 	if(code == 31)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [3]");
+ 		wcsystem_set_title_music(new music(f));
+ 		return 1;
+ 	}
+ 	if(code == 32)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [4]");
+ 		wcsystem_set_battle_music(new music(f));
+ 		return 1;
+ 	}
+ 	if(code == 33)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [5]");
+ 		wcsystem_set_victory_music(new music(f));
+ 		return 1;
+ 	}
+ 	if(code == 38)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [6]");
+ 		wcsystem_set_gameover_music(new music(f));
+ 		return 1;
+ 	}
+ 	/* Music ends here */
+ 	if(code == 20)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [7]");
+ 		wcsystem_set_gauge(wcstr_read_file(f,len));
+ 		return 1;
+ 	}
+ 	if(code == 21)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [8]");
+ 		wcsys_party_size = wcint_read_file(f,&rlen);
+ 		wclog_write(wcrpg_get_log(),"Initial party size is ");
+ 		wclog_write(wcrpg_get_log(),wcsys_party_size);
+@@ -157,6 +168,7 @@
+ 	}
+ 	if(code == 22)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [9]");
+ 		/* OK read them */
+ 		for(i = 0;i < len/2;i++)
+ 		{
+@@ -173,6 +185,7 @@
+ 	/* If 2003, */
+ 	if(!wcrpg_old_mode())
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [10]");
+ 		if(code == 27)
+ 		{
+ 			/* Menu options */
+@@ -192,6 +205,7 @@
+ 	}
+ 	else
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [11]");
+ 		/* Not 2003 */
+ 		wcsys_menu_option_count = 4;
+ 		for(i = 0;i < 4;i++)
+@@ -199,48 +213,58 @@
+ 	}
+ 	if(code == 71)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [12]");
+ 		wcsystem_set_graphic_tile(wcint_read_file(f,&rlen));
+ 		return 1;
+ 	}
+ 	if(code == 72)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [13]");
+ 		wcsystem_set_font(wcint_read_file(f,&rlen));
+ 		return 1;
+ 	}
+ 	/* Trans */
+ 	if(code == 61)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [14]");
+ 		wcsys_map_in = wcint_read_file(f,&rlen);
+ 		return 1;
+ 	}
+ 	if(code == 62)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [15]");
+ 		wcsys_map_out = wcint_read_file(f,&rlen);
+ 		return 1;
+ 	}
+ 	if(code == 63)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [16]");
+ 		wcsys_battle_in = wcint_read_file(f,&rlen);
+ 		return 1;
+ 	}
+ 	if(code == 64)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [17]");
+ 		wcsys_battle_out = wcint_read_file(f,&rlen);
+ 		return 1;
+ 	}
+ 	if(code == 65)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [18]");
+ 		wcsys_victory_in = wcint_read_file(f,&rlen);
+ 		return 1;
+ 	}
+ 	if(code == 66)
+ 	{
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [19]");
+ 		wcsys_victory_out = wcint_read_file(f,&rlen);
+ 		return 1;
+ 	}
+ 	/* Pass off to sound */
+-	if(wcsystem_process_sound(f,code,len))
++	if(wcsystem_process_sound(f,code,len)){
++		//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_process [20]");
+ 		return 1;
++	}
+ 	return 0;
+ }
+ 
+@@ -304,15 +328,21 @@
+ void wcsystem_set_graphic(char *c)
+ {
+ 	/* Erase old */
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_set_graphic [0]");	
+ 	if(wcsys_system)
+ 		delete wcsys_system;
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_set_graphic [1]");	
+ 	/* Load it */
+ 	wcsys_system = new texture(wcmaterial_request(MATERIAL_SYSTEM,c));
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_set_graphic [2]");	
+ 	wcwindow_generate_all_fonts();
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_set_graphic [3]");	
+ 	/* Set name */
+ 	if(wcsys_system_name)
+ 		free(wcsys_system_name);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_set_graphic [4]");	
+ 	wcsys_system_name = wcrpg_string_clone(c);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcsystem_set_graphic [5]");	
+ }
+ 
+ /* Get system graphic name */
+Index: wcterrain.cpp
+===================================================================
+--- wcterrain.cpp	(revision 274)
++++ wcterrain.cpp	(working copy)
+@@ -9,6 +9,8 @@
+ #include "wctype.h"
+ #include "wcmaterial.h"
+ 
++#include <stdlib.h>
++
+ /* Globals */
+ table *terrain_table;
+ arraylist terrains;
+Index: wctext.cpp
+===================================================================
+--- wctext.cpp	(revision 274)
++++ wctext.cpp	(working copy)
+@@ -3,7 +3,7 @@
+ */
+ 
+ /* Includes */
+-#include <windows.h>
++//#include <windows.h>
+ #include <stdio.h>
+ #include "wctext.h"
+ 
+@@ -103,8 +103,9 @@
+ /* Draw text with number */
+ void font :: draw_text(int x,int y,char *str,int i)
+ {
+-	char buffer[MAX_PATH];
+-	sprintf_s(buffer,sizeof(buffer),str,i);
++	return;
++	char buffer[260];
++	sprintf(buffer,str,i);
+ 	draw_text(x,y,buffer);
+ }
+ 
+Index: wctileset.cpp
+===================================================================
+--- wctileset.cpp	(revision 274)
++++ wctileset.cpp	(working copy)
+@@ -10,6 +10,8 @@
+ #include "wctype.h"
+ #include "wcrpg.h"
+ 
++#include <string.h>
++
+ /* Globals */
+ tile wctileset_sub[TILESET_MAX];
+ tile wctileset_back_sub[TILESET_MAX];
+Index: wctimer.cpp
+===================================================================
+--- wctimer.cpp	(revision 274)
++++ wctimer.cpp	(working copy)
+@@ -9,6 +9,8 @@
+ #include "wcwindow.h"
+ #include "wcbattle.h"
+ 
++#include <string.h>
++
+ /* Globals */
+ float wctimer_clk[WCTIMER_MAX];
+ int wctimer_s[WCTIMER_MAX];
+Index: wctrans.cpp
+===================================================================
+--- wctrans.cpp	(revision 274)
++++ wctrans.cpp	(working copy)
+@@ -4,7 +4,7 @@
+ 
+ /* Includes */
+ #include <stdlib.h>
+-#include "resource.h"
++//#include "resource.h"
+ #include "wctrans.h"
+ #include "wcdraw.h"
+ #include "wcrpg.h"
+@@ -164,7 +164,7 @@
+ /* Init */
+ void wctrans_init()
+ {
+-	wctrans_dark_panel = new texture(bmp_darkpan,8,8);
++	//wctrans_dark_panel = new texture(bmp_darkpan,8,8);
+ }
+ 
+ /* Exit */
+Index: wctype.cpp
+===================================================================
+--- wctype.cpp	(revision 274)
++++ wctype.cpp	(working copy)
+@@ -8,6 +8,8 @@
+ #include "wctype.h"
+ #include "wcrpg.h"
+ 
++#include <string.h>
++
+ /* Continue flag */
+ int wcint_continue(unsigned char b)
+ {
+@@ -89,7 +91,7 @@
+ 	c = (char*)malloc(len+1);
+ 	memset(c,0,len+1);
+ 	/* Read */
+-	memcpy_s(c,len,v,len);
++	memcpy(c,v,len);
+ 	/* Return */
+ 	return c;
+ }
+@@ -102,7 +104,7 @@
+ 	c = (char*)malloc(len+1);
+ 	memset(c,0,len+1);
+ 	/* Read */
+-	memcpy_s(c,len,v,len);
++	memcpy(c,v,len);
+ 	/* Return */
+ 	return c;
+ }
+Index: wcvocab.cpp
+===================================================================
+--- wcvocab.cpp	(revision 274)
++++ wcvocab.cpp	(working copy)
+@@ -12,6 +12,8 @@
+ #include "wctype.h"
+ #include "wclog.h"
+ 
++#include <string.h>
++
+ /* Globals */
+ arraylist wcvocab_list;
+ 
+Index: wcwindow.cpp
+===================================================================
+--- wcwindow.cpp	(revision 274)
++++ wcwindow.cpp	(working copy)
+@@ -6,7 +6,7 @@
+ #include <malloc.h>
+ #include <memory.h>
+ #include <stdlib.h>
+-#include "resource.h"
++//#include "resource.h"
+ #include "wchero.h"
+ #include "wcwindow.h"
+ #include "wcsystem.h"
+@@ -16,6 +16,8 @@
+ #include "wcparty.h"
+ #include "wcmaterial.h"
+ 
++#include <android\log.h>
++
+ /* Globals */
+ float wcwindow_anim_dist = 0;
+ int wcwindow_anim_frame = 0;
+@@ -92,20 +94,32 @@
+ /* Generates a font based on a part of the system graphic */
+ font *wcwindow_generate_font(int sx,int sy)
+ {
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_font [1]");	
+ 	texture *tex;
+ 	image *newfon,*srcfon,*srcsys;
+ 	/* Get materials */
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_font [2]");	
+ 	srcfon = wcrpg_get_font()->get_image();
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_font [3]");	
+ 	newfon = new image(srcfon->get_width(),srcfon->get_height());
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_font [4]");	
+ 	srcsys = wcsystem_get_graphic()->get_image();
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_font [5]");	
+ 	/* Pattern image */
+-	newfon->blit_tile(srcsys,sx,sy,16,16);
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_font [6]");	
++	//newfon->blit_tile(srcsys,sx,sy,16,16);
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_font [7]");	
+ 	/* Multiply image */
+-	newfon->multiply(srcfon);
++	//newfon->multiply(srcfon);
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_font [8]");	
+ 	/* Create texture */
+-	newfon->extend(newfon->get_width()*2,newfon->get_height());
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_font [9]");	
++	//newfon->extend(newfon->get_width()*2,newfon->get_height());
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_font [10]");	
+ 	tex = new texture(newfon);
+-	tex->reduce();
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_font [11]");	
++	//tex->reduce();
++	//__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_font [12]");	
+ 	return new font(tex);
+ }
+ 
+@@ -114,25 +128,32 @@
+ {
+ 	int i;
+ 	/* Erase old */
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_all_fonts [1]");	
+ 	if(wcwindow_shadow_font)
+ 		delete wcwindow_shadow_font;
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_all_fonts [2]");	
+ 	for(i = 0;i < FONT_COLOR_COUNT;i++)
+ 	{
+ 		if(wcwindow_color_font[i])
+ 			delete wcwindow_color_font[i];
+ 	}
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_all_fonts [3]");	
+ 	if(wcwindow_ex_font)
+ 		delete wcwindow_ex_font;
+ 	/* Make new */
+ 	wcwindow_shadow_font = wcwindow_generate_font(16,32);
+ 	wcwindow_shadow_font->set_compression(2);
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_all_fonts [4]");	
+ 	for(i = 0;i < FONT_COLOR_COUNT;i++)
+ 	{
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_all_fonts [5]");	
+ 		wcwindow_color_font[i] = wcwindow_generate_font(16*(i%10),48+(i/10)*16);
++		__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_all_fonts [6]");	
+ 		wcwindow_color_font[i]->set_compression(2);
+ 	}
++	__android_log_print(ANDROID_LOG_INFO, "adMOB", "wcwindow_generate_all_fonts [7]");	
+ 	/*wcwindow_ex_font = new texture("exfont.bmp");*/
+-	wcwindow_ex_font = new texture(bmp_exfont,256,64);
++	//wcwindow_ex_font = new texture(bmp_exfont,256,64);
+ }
+ 
+ /* Advances the animations */
+@@ -299,7 +320,7 @@
+ 	if(!tex)
+ 		return;
+ 	/* Format text */
+-	sprintf_s(buffer,sizeof(buffer),"%d",n);
++	sprintf(buffer,"%d",n);
+ 	/* Draw text */
+ 	for(i = 0;i < sizeof(buffer);i++)
+ 	{
+@@ -416,7 +437,7 @@
+ 	if(!tex)
+ 		return;
+ 	/* Format */
+-	sprintf_s(buffer,sizeof(buffer),"%d",n);
++	sprintf(buffer,"%d",n);
+ 	/* Draw */
+ 	for(i = 0;i < 32;i++)
+ 	{
+Index: wcwindowtext.h
+===================================================================
+--- wcwindowtext.h	(revision 274)
++++ wcwindowtext.h	(working copy)
+@@ -35,13 +35,13 @@
+ 	/* Copy it all */
+ 	if(p == TEXT_ALL || p >= (int)strlen(source))
+ 	{
+-		memcpy_s(current,strlen(source),source,strlen(source));
++		memcpy(current,source,strlen(source));
+ 		return;
+ 	}
+ 	/* Copy some */
+ 	if(p > 0 && p < (int)strlen(source))
+ 	{
+-		memcpy_s(current,p,source,p);
++		memcpy(current,source,p);
+ 		current[p] = 0;
+ 		return;
+ 	}
+@@ -103,7 +103,7 @@
+ 	cs = (char*)malloc(t-f+1);
+ 	memset(cs,0,t-f+1);
+ 	/* Copy */
+-	memcpy_s(cs,t-f,&src[f],t-f);
++	memcpy(cs,&src[f],t-f);
+ 	/* Cap off */
+ 	cs[t-f] = 0;
+ 	return cs;
+@@ -331,15 +331,15 @@
+ 	elen = (int)strlen(str)-mlen-slen;
+ 	/* Resolve the number */
+ 	nstr = (char*)malloc(64);
+-	sprintf_s(nstr,64,"%d",wcwindow_resolve_variable(&str[slen]));
++	sprintf(nstr,"%d",wcwindow_resolve_variable(&str[slen]));
+ 	/* Find out how long IT is */
+ 	nlen = (int)strlen(nstr);
+ 	/* Now allocate final string */
+ 	cstr = (char*)malloc(slen+nlen+elen+1);
+ 	/* Copy the parts */
+-	memcpy_s(cstr,slen,str,slen);
+-	memcpy_s(&cstr[slen],nlen,nstr,nlen);
+-	memcpy_s(&cstr[slen+nlen],elen,&str[slen+mlen],elen);
++	memcpy(cstr,str,slen);
++	memcpy(&cstr[slen],nstr,nlen);
++	memcpy(&cstr[slen+nlen],&str[slen+mlen],elen);
+ 	cstr[slen+nlen+elen] = 0;
+ 	/* Erase number string */
+ 	free(nstr);

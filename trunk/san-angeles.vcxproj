@@ -1,0 +1,332 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Android">
+      <Configuration>Debug</Configuration>
+      <Platform>Android</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Android">
+      <Configuration>Release</Configuration>
+      <Platform>Android</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F3F25B49-2C6B-4FF0-98FB-47695DF70B8A}</ProjectGuid>
+    <RootNamespace>sanangeles</RootNamespace>
+    <ProjectName>wcrm20xx</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">
+    <AndroidAPILevel>android-8</AndroidAPILevel>
+    <AndroidArch>armv7-a</AndroidArch>
+    <AndroidStlType>gnustl_static</AndroidStlType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
+    <AndroidArch>armv5te</AndroidArch>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">
+    <ClCompile>
+      <PreprocessorDefinitions>DISABLE_IMPORTGL</PreprocessorDefinitions>
+      <CompileAs>Default</CompileAs>
+      <AdditionalIncludeDirectories>C:\Program Files\boost\boost_1_47;cppsource/freetype/include;cppsource/sdl</AdditionalIncludeDirectories>
+      <GccExceptionHandling>true</GccExceptionHandling>
+      <Warnings>DisableAllWarnings</Warnings>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>-lGLESv1_CM -lz -lzip %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>cppsource</AdditionalLibraryDirectories>
+    </Link>
+    <AntBuild>
+      <AntBuildPath>$(ProjectDir)\AndroidApk\</AntBuildPath>
+      <AntDeploy>DeployAndRun</AntDeploy>
+      <JVMHeapInitial>
+      </JVMHeapInitial>
+      <JVMHeapMaximum>
+      </JVMHeapMaximum>
+    </AntBuild>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
+    <ClCompile>
+      <PreprocessorDefinitions>DISABLE_IMPORTGL</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Program Files\boost\boost_1_47;cppsource/freetype/include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>-lGLESv1_CM %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>cppsource</AdditionalLibraryDirectories>
+    </Link>
+    <AntBuild>
+      <AntBuildPath>$(ProjectDir)\AndroidApk\</AntBuildPath>
+    </AntBuild>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="AndroidApk\AndroidManifest.xml" />
+    <None Include="AndroidApk\build.xml" />
+    <None Include="AndroidApk\default.properties" />
+    <None Include="AndroidApk\local.properties" />
+    <None Include="AndroidApk\res\layout\main.xml" />
+    <None Include="AndroidApk\res\values\strings.xml" />
+    <None Include="AndroidApk\src\br\gjteam\jni\Main.java" />
+    <None Include="AndroidApk\src\com\nvidia\devtech\NvActivity.java" />
+    <None Include="AndroidApk\src\com\nvidia\devtech\NvGLES2Activity.java" />
+    <None Include="AndroidApk\src\com\nvidia\devtech\NvGLESActivity.java" />
+    <None Include="AndroidApk\src\com\nvidia\devtech\NvUtil.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CppSource\app-android.cpp" />
+    <ClCompile Include="CppSource\Engine.cpp" />
+    <ClCompile Include="CppSource\font\FontAtlas.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\FTBitmapChar.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\FTBitmapFont.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\GLCallBatcher.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\PreCompile.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\RacException.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\ResManager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\TreeNode.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="CppSource\font\Util.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="CppSource\gl2d.cpp" />
+    <ClCompile Include="CppSource\GLES11SpriteBatch.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcanimation.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcarray.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcattribute.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcbattle.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcbattleatb.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcbattlecommand.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcbattleset.cpp" />
+    <ClCompile Include="CppSource\rm_src\wccommand.cpp" />
+    <ClCompile Include="CppSource\rm_src\wccommon.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcdatabase.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcdialog.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcdraw.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcevent.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcfx.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcgearplate.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcgroup.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcguibuild.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcguiname.cpp" />
+    <ClCompile Include="CppSource\rm_src\wchero.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcheroplate.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcimage.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcini.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcinput.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcinvoke.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcitem.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcitemmenu.cpp" />
+    <ClCompile Include="CppSource\rm_src\wclevel.cpp" />
+    <ClCompile Include="CppSource\rm_src\wclog.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcmanage.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcmap.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcmaptree.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcmaterial.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcmem.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcmenu.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcmessage.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcmetric.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcmisc.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcmonster.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcmove.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcnucleus.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcpage.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcparty.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcperform.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcpicture.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcplayer.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcpopnum.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcquitmenu.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcres.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcrpg.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcrun.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcsave.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcsaveio.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcsavemenu.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcscreenshot.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="CppSource\rm_src\wcskill.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcskillmenu.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcsort.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcsound.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcstatusmenu.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcsystem.cpp" />
+    <ClCompile Include="CppSource\rm_src\wctable.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcterrain.cpp" />
+    <ClCompile Include="CppSource\rm_src\wctext.cpp" />
+    <ClCompile Include="CppSource\rm_src\wctileset.cpp" />
+    <ClCompile Include="CppSource\rm_src\wctimer.cpp" />
+    <ClCompile Include="CppSource\rm_src\wctrans.cpp" />
+    <ClCompile Include="CppSource\rm_src\wctype.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcvocab.cpp" />
+    <ClCompile Include="CppSource\rm_src\wcwindow.cpp" />
+    <ClCompile Include="CppSource\SpriteBatch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CppSource\app.h" />
+    <ClInclude Include="CppSource\Engine.h" />
+    <ClInclude Include="CppSource\font\Allocator.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\EAGLView.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\FontAtlas.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\FTBitmapChar.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\FTBitmapFont.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\GLCallBatcher.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\OpenGLFontAppDelegate.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\precompile.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\RacException.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\ResManager.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\TreeNode.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CppSource\font\Util.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CppSource\gl2d.h" />
+    <ClInclude Include="CppSource\GLES11SpriteBatch.h" />
+    <ClInclude Include="CppSource\gmUtil.h" />
+    <ClInclude Include="CppSource\jniUtil.h" />
+    <ClInclude Include="CppSource\rm_src\wcanimation.h" />
+    <ClInclude Include="CppSource\rm_src\wcarray.h" />
+    <ClInclude Include="CppSource\rm_src\wcattribute.h" />
+    <ClInclude Include="CppSource\rm_src\wcbattle.h" />
+    <ClInclude Include="CppSource\rm_src\wcbattleatb.h" />
+    <ClInclude Include="CppSource\rm_src\wcbattlecommand.h" />
+    <ClInclude Include="CppSource\rm_src\wcbattleset.h" />
+    <ClInclude Include="CppSource\rm_src\wccommand.h" />
+    <ClInclude Include="CppSource\rm_src\wccommandname.h" />
+    <ClInclude Include="CppSource\rm_src\wccommandneo.h" />
+    <ClInclude Include="CppSource\rm_src\wccommandrun.h" />
+    <ClInclude Include="CppSource\rm_src\wccommon.h" />
+    <ClInclude Include="CppSource\rm_src\wcdatabase.h" />
+    <ClInclude Include="CppSource\rm_src\wcdialog.h" />
+    <ClInclude Include="CppSource\rm_src\wcdraw.h" />
+    <ClInclude Include="CppSource\rm_src\wcevent.h" />
+    <ClInclude Include="CppSource\rm_src\wcfx.h" />
+    <ClInclude Include="CppSource\rm_src\wcgearplate.h" />
+    <ClInclude Include="CppSource\rm_src\wcgroup.h" />
+    <ClInclude Include="CppSource\rm_src\wcguibuild.h" />
+    <ClInclude Include="CppSource\rm_src\wcguiname.h" />
+    <ClInclude Include="CppSource\rm_src\wchero.h" />
+    <ClInclude Include="CppSource\rm_src\wcheroplate.h" />
+    <ClInclude Include="CppSource\rm_src\wcimage.h" />
+    <ClInclude Include="CppSource\rm_src\wcini.h" />
+    <ClInclude Include="CppSource\rm_src\wcinput.h" />
+    <ClInclude Include="CppSource\rm_src\wcinvoke.h" />
+    <ClInclude Include="CppSource\rm_src\wcitem.h" />
+    <ClInclude Include="CppSource\rm_src\wcitemmenu.h" />
+    <ClInclude Include="CppSource\rm_src\wclevel.h" />
+    <ClInclude Include="CppSource\rm_src\wclog.h" />
+    <ClInclude Include="CppSource\rm_src\wcmanage.h" />
+    <ClInclude Include="CppSource\rm_src\wcmap.h" />
+    <ClInclude Include="CppSource\rm_src\wcmapdraw.h" />
+    <ClInclude Include="CppSource\rm_src\wcmaptree.h" />
+    <ClInclude Include="CppSource\rm_src\wcmaterial.h" />
+    <ClInclude Include="CppSource\rm_src\wcmem.h" />
+    <ClInclude Include="CppSource\rm_src\wcmenu.h" />
+    <ClInclude Include="CppSource\rm_src\wcmessage.h" />
+    <ClInclude Include="CppSource\rm_src\wcmetric.h" />
+    <ClInclude Include="CppSource\rm_src\wcmisc.h" />
+    <ClInclude Include="CppSource\rm_src\wcmonster.h" />
+    <ClInclude Include="CppSource\rm_src\wcmove.h" />
+    <ClInclude Include="CppSource\rm_src\wcnucleus.h" />
+    <ClInclude Include="CppSource\rm_src\wcpage.h" />
+    <ClInclude Include="CppSource\rm_src\wcparty.h" />
+    <ClInclude Include="CppSource\rm_src\wcperform.h" />
+    <ClInclude Include="CppSource\rm_src\wcpicture.h" />
+    <ClInclude Include="CppSource\rm_src\wcplayer.h" />
+    <ClInclude Include="CppSource\rm_src\wcpopnum.h" />
+    <ClInclude Include="CppSource\rm_src\wcquitmenu.h" />
+    <ClInclude Include="CppSource\rm_src\wcres.h" />
+    <ClInclude Include="CppSource\rm_src\wcrpg.h" />
+    <ClInclude Include="CppSource\rm_src\wcrun.h" />
+    <ClInclude Include="CppSource\rm_src\wcsave.h" />
+    <ClInclude Include="CppSource\rm_src\wcsaveio.h" />
+    <ClInclude Include="CppSource\rm_src\wcsavemenu.h" />
+    <ClInclude Include="CppSource\rm_src\wcscreenshot.h" />
+    <ClInclude Include="CppSource\rm_src\wcskill.h" />
+    <ClInclude Include="CppSource\rm_src\wcskillmenu.h" />
+    <ClInclude Include="CppSource\rm_src\wcsort.h" />
+    <ClInclude Include="CppSource\rm_src\wcsound.h" />
+    <ClInclude Include="CppSource\rm_src\wcstatusmenu.h" />
+    <ClInclude Include="CppSource\rm_src\wcsystem.h" />
+    <ClInclude Include="CppSource\rm_src\wcsystemmusic.h" />
+    <ClInclude Include="CppSource\rm_src\wcsystemsound.h" />
+    <ClInclude Include="CppSource\rm_src\wctable.h" />
+    <ClInclude Include="CppSource\rm_src\wcterrain.h" />
+    <ClInclude Include="CppSource\rm_src\wctext.h" />
+    <ClInclude Include="CppSource\rm_src\wctileset.h" />
+    <ClInclude Include="CppSource\rm_src\wctimer.h" />
+    <ClInclude Include="CppSource\rm_src\wctrans.h" />
+    <ClInclude Include="CppSource\rm_src\wctype.h" />
+    <ClInclude Include="CppSource\rm_src\wcvocab.h" />
+    <ClInclude Include="CppSource\rm_src\wcwindow.h" />
+    <ClInclude Include="CppSource\rm_src\wcwindowtext.h" />
+    <ClInclude Include="CppSource\SpriteBatch.h" />
+    <ClInclude Include="CppSource\Vector2D.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
